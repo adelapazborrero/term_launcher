@@ -28,7 +28,23 @@ HackerLauncher is an Android home screen replacement (launcher) with a terminal/
 ./gradlew installDebug && adb shell am start -n com.hackerlauncher/.LauncherActivity
 ```
 
-Requires Android SDK installed and `ANDROID_HOME` set (or `local.properties` with `sdk.dir`). A USB-connected device with developer mode + USB debugging enabled is the primary test target.
+Requires Android SDK installed and `ANDROID_HOME` set (or `local.properties` with `sdk.dir`). `adb` is not on PATH — use the full path: `$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe`.
+
+### Connecting the Test Device (Xiaomi Redmi, WiFi ADB)
+
+USB install is blocked by MIUI. Use WiFi ADB instead:
+
+1. On phone: **Settings → Additional Settings → Developer Options → Wireless debugging → ON**
+2. Also enable **"Install via USB"** in Developer Options (required even for WiFi installs on MIUI)
+3. Tap **"Pair device with pairing code"** — note the IP, pairing port, and 6-digit code
+4. Run: `adb pair <ip:pairingPort> <code>`
+5. Back on the Wireless debugging main screen, note the **connection port** (different from pairing port)
+6. Run: `adb connect <ip:connectionPort>`
+7. Verify with: `adb devices`
+
+The device IP is typically `192.168.2.81`. Pairing codes expire quickly — run `adb pair` immediately after getting the code.
+
+After connecting, use `.\gradlew installDebug` (Windows) to build and install.
 
 ## Architecture
 
