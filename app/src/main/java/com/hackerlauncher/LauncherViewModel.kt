@@ -4,9 +4,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.hackerlauncher.apps.AppManager
 import com.hackerlauncher.apps.FavoritesManager
+import com.hackerlauncher.apps.FolderManager
 import com.hackerlauncher.commands.AliasManager
 import com.hackerlauncher.commands.CommandContext
 import com.hackerlauncher.commands.CommandProcessor
+import com.hackerlauncher.commands.SessionState
 import com.hackerlauncher.settings.Settings
 import com.hackerlauncher.settings.SettingsManager
 import com.hackerlauncher.terminal.TerminalEntry
@@ -21,7 +23,9 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     private val themeManager = ThemeManager(application)
     private val appManager = AppManager(application)
     private val favoritesManager = FavoritesManager(application)
+    private val folderManager = FolderManager(application)
     private val aliasManager = AliasManager(application)
+    private val session = SessionState()
     private val settingsManager = SettingsManager(application)
 
     private val _entries = MutableStateFlow<List<TerminalEntry>>(
@@ -35,9 +39,11 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         CommandContext(
             appManager = appManager,
             favoritesManager = favoritesManager,
+            folderManager = folderManager,
             aliasManager = aliasManager,
             settingsManager = settingsManager,
             themeManager = themeManager,
+            session = session,
             androidContext = application,
             onClear = { _entries.value = emptyList() }
         )

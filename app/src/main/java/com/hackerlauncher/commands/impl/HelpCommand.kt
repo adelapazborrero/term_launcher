@@ -6,17 +6,36 @@ import com.hackerlauncher.commands.CommandRegistry
 import com.hackerlauncher.terminal.TerminalEntry
 
 class HelpCommand : Command {
-    override val description = "help  — list available commands"
+    override val description = "help [-l] [cmd]  — list commands; -l for details"
 
     override fun execute(args: List<String>, context: CommandContext): List<TerminalEntry> {
-        return buildList {
-            add(TerminalEntry.info("HackerLauncher — commands:"))
-            add(TerminalEntry.output(""))
-            CommandRegistry.getUniqueDescriptions().forEach { (_, desc) ->
-                add(TerminalEntry.output("  $desc"))
-            }
-            add(TerminalEntry.output(""))
-            add(TerminalEntry.info("aliases: launch/start=open, ls=apps, cls=clear, ?=help"))
+        val flag = args.firstOrNull()
+        return when {
+            flag == "-l" -> verbose()
+            flag != null -> specific(flag)
+            else -> short()
         }
+    }
+
+    private fun short(): List<TerminalEntry> {
+        val names = CommandRegistry.getUniqueNames().joinToString("  ")
+        return listOf(
+            TerminalEntry.info("commands: $names"),
+            TerminalEntry.info("help -l for details  |  help <cmd> for usage")
+        )
+    }
+
+    private fun verbose(): List<TerminalEntry> = buildList {
+        add(TerminalEntry.info("HackerLauncher — commands:"))
+        CommandRegistry.getUniqueDescriptions().forEach { (_, desc) ->
+            add(TerminalEntry.output("  $desc"))
+        }
+    }
+
+    private fun specific(name: String): List<TerminalEntry> {
+        val desc = CommandRegistry.getUniqueDescriptions()
+            .find { it.first.equals(name, ignoreCase = true) }?.second
+            ?: return listOf(TerminalEntry.error("unknown command: $name"))
+        return listOf(TerminalEntry.output(desc))
     }
 }
