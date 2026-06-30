@@ -12,7 +12,7 @@ class FavCommand : Command {
         return when (sub) {
             "add" -> addFav(args.drop(1), context)
             "remove", "rm", "del" -> removeFav(args.drop(1), context)
-            "list", null -> listFavs(context)
+            "list" -> listFavs(context)
             else -> listOf(TerminalEntry.error("usage: fav <add|remove|list> [app name]"))
         }
     }

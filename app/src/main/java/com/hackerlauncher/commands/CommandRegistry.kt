@@ -24,7 +24,6 @@ object CommandRegistry {
         put("start", open)
         put("apps", apps)
         put("fav", fav)
-        put("favs", fav)
         put("ls", apps)
         put("theme", ThemeCommand())
         put("themes", ThemesCommand())
