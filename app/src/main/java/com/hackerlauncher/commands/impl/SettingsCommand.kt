@@ -21,25 +21,37 @@ class SettingsCommand : Command {
 
     private fun listSettings(context: CommandContext): List<TerminalEntry> {
         val s = context.settingsManager.getAll()
+        val theme = context.themeManager.currentTheme.value.name
         return buildList {
             add(TerminalEntry.info("current settings:"))
+            add(TerminalEntry.output("  theme      = $theme"))
             add(TerminalEntry.output("  font_size  = ${s.fontSize.toInt()}sp"))
             add(TerminalEntry.output("  prompt     = ${s.prompt}"))
             add(TerminalEntry.info("use 'settings set <key> <value>' to change"))
-            add(TerminalEntry.info("keys: font_size (8-32), prompt"))
+            add(TerminalEntry.info("keys: theme, font_size (8-32), prompt"))
         }
     }
 
     private fun setKey(args: List<String>, context: CommandContext): List<TerminalEntry> {
         if (args.size < 2) return listOf(TerminalEntry.error("usage: settings set <key> <value>"))
-        val key = args[0]
+        val key = args[0].lowercase()
         val value = args.drop(1).joinToString(" ")
-        return if (context.settingsManager.set(key, value)) {
-            listOf(TerminalEntry.output("$key set to: $value"))
-        } else {
-            when (key) {
-                "font_size" -> listOf(TerminalEntry.error("font_size must be a number between 8 and 32"))
-                else -> listOf(TerminalEntry.error("unknown key '$key' — valid keys: font_size, prompt"))
+        return when (key) {
+            "theme" -> {
+                if (context.themeManager.setTheme(value)) {
+                    listOf(TerminalEntry.output("theme set to: $value"))
+                } else {
+                    val available = context.themeManager.getAvailableThemes().joinToString(", ")
+                    listOf(TerminalEntry.error("unknown theme '$value' — available: $available"))
+                }
+            }
+            else -> if (context.settingsManager.set(key, value)) {
+                listOf(TerminalEntry.output("$key set to: $value"))
+            } else {
+                when (key) {
+                    "font_size" -> listOf(TerminalEntry.error("font_size must be a number between 8 and 32"))
+                    else -> listOf(TerminalEntry.error("unknown key '$key' — valid keys: theme, font_size, prompt"))
+                }
             }
         }
     }

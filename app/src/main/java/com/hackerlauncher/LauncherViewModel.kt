@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.hackerlauncher.apps.AppManager
 import com.hackerlauncher.apps.FavoritesManager
+import com.hackerlauncher.commands.AliasManager
 import com.hackerlauncher.commands.CommandContext
 import com.hackerlauncher.commands.CommandProcessor
 import com.hackerlauncher.settings.Settings
@@ -20,6 +21,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     private val themeManager = ThemeManager(application)
     private val appManager = AppManager(application)
     private val favoritesManager = FavoritesManager(application)
+    private val aliasManager = AliasManager(application)
     private val settingsManager = SettingsManager(application)
 
     private val _entries = MutableStateFlow<List<TerminalEntry>>(
@@ -33,6 +35,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         CommandContext(
             appManager = appManager,
             favoritesManager = favoritesManager,
+            aliasManager = aliasManager,
             settingsManager = settingsManager,
             themeManager = themeManager,
             androidContext = application,

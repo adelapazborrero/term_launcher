@@ -88,33 +88,49 @@ Commands are registered in `CommandRegistry` — adding a new command means impl
 
 | File | Purpose |
 |---|---|
-| `LauncherActivity.kt` | Single activity; owns the RecyclerView + input bar; collects theme StateFlow |
-| `commands/CommandProcessor.kt` | Tokenizes input, dispatches to Command implementations |
+| `LauncherActivity.kt` | Single activity; owns the RecyclerView + input bar; collects theme + settings StateFlows |
+| `LauncherViewModel.kt` | Owns all managers; exposes `entries`, `currentTheme`, `currentSettings` StateFlows |
+| `commands/CommandProcessor.kt` | Tokenizes input, resolves aliases, dispatches to Command implementations |
 | `commands/CommandRegistry.kt` | Map of command name → Command; only place to register new commands |
-| `commands/Command.kt` | `Command` interface + `CommandContext` data class |
+| `commands/Command.kt` | `Command` interface |
+| `commands/CommandContext.kt` | Carries all managers into commands |
+| `commands/AliasManager.kt` | Persists aliases (name → expansion) in SharedPreferences |
 | `apps/AppManager.kt` | PackageManager wrapper; app list cache; fuzzy search |
-| `theme/ThemeManager.kt` | Theme state; predefined themes; StateFlow publisher |
-| `terminal/TerminalAdapter.kt` | RecyclerView adapter for terminal output |
-| `terminal/TerminalEntry.kt` | Data class for a single terminal line |
+| `apps/FavoritesManager.kt` | Persists favorite package names in SharedPreferences |
+| `settings/SettingsManager.kt` | Persists font_size and prompt; exposes StateFlow |
+| `settings/Settings.kt` | Data class for user-configurable settings |
+| `theme/ThemeManager.kt` | Theme state; persists active theme; StateFlow publisher |
+| `theme/HackerTheme.kt` | Theme data class + predefined themes (matrix, blood, ice, amber, ghost) |
+| `terminal/TerminalAdapter.kt` | RecyclerView adapter for terminal output; applies theme + font size |
+| `terminal/TerminalEntry.kt` | Data class for a single terminal line (INPUT/OUTPUT/ERROR/INFO) |
 
 ## Built-in Commands
 
 | Command | Description |
 |---|---|
-| `open <name>` / `launch <name>` | Fuzzy-match and launch an installed app |
-| `apps` / `ls` | List all installed apps |
-| `theme <name>` | Switch color theme (e.g. `theme matrix`, `theme blood`, `theme ice`) |
+| `open <name>` / `launch <name>` | Fuzzy-match and launch an installed app; checks favorites first |
+| `apps [filter]` / `ls` | List all installed apps, optional name filter |
+| `fav add <name>` | Add an app to favorites |
+| `fav remove <name>` | Remove an app from favorites |
+| `fav list` | List favorite apps |
+| `alias <name> <cmd>` | Create a persistent alias (`alias br "open brave"`) |
+| `alias list` | List all aliases |
+| `alias remove <name>` | Remove an alias |
+| `settings list` | Show all settings (theme, font_size, prompt) |
+| `settings set theme <name>` | Switch color theme (matrix, blood, ice, amber, ghost) |
+| `settings set font_size <8-32>` | Change text size in sp |
+| `settings set prompt <text>` | Change the prompt string |
+| `settings reset` | Reset all settings to defaults |
 | `themes` | List available themes |
-| `clear` | Clear terminal output |
+| `clear` / `cls` | Clear terminal output |
 | `help [command]` | Show all commands or help for a specific command |
 | `info` | Show device info (model, Android version, battery, time) |
-| `alias <name> <cmd>` | Create a command alias (persisted to SharedPreferences) |
 
 ## Adding a New Command
 
 1. Create `commands/impl/MyCommand.kt` implementing `Command`
 2. Register it in `CommandRegistry` with its name string
-3. Add a `help` description string — `HelpCommand` reads descriptions from the registry
+3. Add a `description` property — `HelpCommand` reads descriptions from the registry
 
 ## Android-Specific Notes
 

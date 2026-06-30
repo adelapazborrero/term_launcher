@@ -9,6 +9,7 @@ import com.hackerlauncher.theme.ThemeManager
 data class CommandContext(
     val appManager: AppManager,
     val favoritesManager: FavoritesManager,
+    val aliasManager: AliasManager,
     val settingsManager: SettingsManager,
     val themeManager: ThemeManager,
     val androidContext: Context,

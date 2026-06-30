@@ -4,13 +4,21 @@ import com.hackerlauncher.terminal.TerminalEntry
 
 class CommandProcessor(private val context: CommandContext) {
 
-    fun process(input: String): List<TerminalEntry> {
+    fun process(input: String, depth: Int = 0): List<TerminalEntry> {
         val trimmed = input.trim()
         if (trimmed.isEmpty()) return emptyList()
 
         val tokens = tokenize(trimmed)
         val commandName = tokens.first().lowercase()
         val args = tokens.drop(1)
+
+        if (depth < 5) {
+            val expansion = context.aliasManager.resolve(commandName)
+            if (expansion != null) {
+                val expanded = if (args.isEmpty()) expansion else "$expansion ${args.joinToString(" ")}"
+                return process(expanded, depth + 1)
+            }
+        }
 
         val command = CommandRegistry.get(commandName)
             ?: return listOf(
