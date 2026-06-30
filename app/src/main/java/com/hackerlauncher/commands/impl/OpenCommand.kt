@@ -11,7 +11,9 @@ class OpenCommand : Command {
         if (args.isEmpty()) return listOf(TerminalEntry.error("usage: open <app name>"))
 
         val query = args.joinToString(" ")
-        val matches = context.appManager.findApps(query)
+        val favMatches = context.appManager.findApps(query)
+            .filter { context.favoritesManager.contains(it.packageName) }
+        val matches = favMatches.ifEmpty { context.appManager.findApps(query) }
 
         return when {
             matches.isEmpty() -> listOf(
