@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default theme colors (Matrix). Overridden at runtime by ThemeManager. -->
+    <color name="terminal_bg">#000000</color>
+    <color name="terminal_fg">#00FF41</color>
+    <color name="terminal_prompt">#00CC33</color>
+    <color name="terminal_error">#FF3333</color>
+    <color name="terminal_info">#007700</color>
+    <color name="terminal_hint">#004400</color>
+</resources>
