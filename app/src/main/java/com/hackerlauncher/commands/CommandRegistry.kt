@@ -2,6 +2,7 @@ package com.hackerlauncher.commands
 
 import com.hackerlauncher.commands.impl.AliasCommand
 import com.hackerlauncher.commands.impl.AppsCommand
+import com.hackerlauncher.commands.impl.AppsListCommand
 import com.hackerlauncher.commands.impl.CdCommand
 import com.hackerlauncher.commands.impl.ClearCommand
 import com.hackerlauncher.commands.impl.FavCommand
@@ -27,7 +28,7 @@ object CommandRegistry {
         put("launch", open)
         put("start", open)
         put("ls", apps)
-        put("apps", apps)
+        put("apps", AppsListCommand())
         put("fav", fav)
         put("alias", alias)
         put("mkdir", MkdirCommand())

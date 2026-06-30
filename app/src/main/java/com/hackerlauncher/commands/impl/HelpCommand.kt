@@ -17,12 +17,10 @@ class HelpCommand : Command {
         }
     }
 
-    private fun short(): List<TerminalEntry> {
-        val names = CommandRegistry.getUniqueNames().joinToString("  ")
-        return listOf(
-            TerminalEntry.info("commands: $names"),
-            TerminalEntry.info("help -l for details  |  help <cmd> for usage")
-        )
+    private fun short(): List<TerminalEntry> = buildList {
+        add(TerminalEntry.info("commands:"))
+        CommandRegistry.getUniqueNames().forEach { add(TerminalEntry.output("  • $it")) }
+        add(TerminalEntry.info("help -l for details  |  help <cmd> for usage"))
     }
 
     private fun verbose(): List<TerminalEntry> = buildList {
