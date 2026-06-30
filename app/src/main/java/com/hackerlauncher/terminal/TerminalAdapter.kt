@@ -1,6 +1,5 @@
 package com.hackerlauncher.terminal
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -70,7 +69,7 @@ class TerminalAdapter(
     }
 
     private fun bindModernInput(holder: ModernInputViewHolder, entry: TerminalEntry) {
-        val indicatorColor = if (entry.success) COLOR_SUCCESS else COLOR_ERROR
+        val indicatorColor = if (entry.success) theme.foreground else theme.error
         holder.indicator.setTextColor(indicatorColor)
         holder.indicator.textSize = fontSize
         holder.commandText.text = entry.text
@@ -120,7 +119,5 @@ class TerminalAdapter(
         private const val VIEW_TEXT = 0
         private const val VIEW_INPUT_MODERN = 1
         private const val VIEW_DIVIDER = 2
-        private val COLOR_SUCCESS = Color.parseColor("#00FF41")
-        private val COLOR_ERROR = Color.parseColor("#FF3333")
     }
 }

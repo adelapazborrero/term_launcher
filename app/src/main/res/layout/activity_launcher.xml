@@ -17,6 +17,12 @@
         android:clipToPadding="false"
         android:paddingBottom="4dp" />
 
+    <View
+        android:id="@+id/input_bar_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/input_bar"
         android:layout_width="match_parent"

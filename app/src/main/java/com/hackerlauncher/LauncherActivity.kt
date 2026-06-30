@@ -93,19 +93,28 @@ class LauncherActivity : AppCompatActivity() {
 
     private fun applyInputBarStyle(mode: UiMode) {
         val theme = viewModel.currentTheme.value
+        val dp = resources.displayMetrics.density
         if (mode == UiMode.MODERN) {
             val stroke = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                cornerRadius = 48f
-                setStroke(2, theme.prompt)
+                cornerRadius = 10f * dp
+                setStroke((1.5f * dp).toInt(), theme.prompt)
                 setColor(theme.background)
             }
             binding.inputBar.background = stroke
-            val pad = (12 * resources.displayMetrics.density).toInt()
-            binding.inputBar.setPadding(pad, pad / 2, pad, pad / 2)
+            val hPad = (14 * dp).toInt()
+            val vPad = (8 * dp).toInt()
+            binding.inputBar.setPadding(hPad, vPad, hPad, vPad)
+            binding.inputBarDivider.visibility = android.view.View.VISIBLE
+            binding.inputBarDivider.setBackgroundColor(theme.prompt)
+            val divMargin = (binding.inputBarDivider.layoutParams as android.widget.LinearLayout.LayoutParams).also {
+                it.bottomMargin = (8 * dp).toInt()
+            }
+            binding.inputBarDivider.layoutParams = divMargin
         } else {
             binding.inputBar.background = null
             binding.inputBar.setPadding(0, 0, 0, 0)
+            binding.inputBarDivider.visibility = android.view.View.GONE
         }
     }
 

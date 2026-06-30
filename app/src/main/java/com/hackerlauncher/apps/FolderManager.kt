@@ -14,32 +14,38 @@ class FolderManager(context: Context) {
 
     fun createFolder(name: String): Boolean {
         val key = name.lowercase()
-        val folders = getFolderSet().toMutableSet()
+        val folders = (prefs.getStringSet(KEY_FOLDERS, emptySet()) ?: emptySet()).toMutableSet()
         if (key in folders) return false
         folders.add(key)
-        prefs.edit().putStringSet(KEY_FOLDERS, folders).apply()
+        prefs.edit().putStringSet(KEY_FOLDERS, folders).commit()
         return true
     }
 
     fun deleteFolder(name: String): Boolean {
         val key = name.lowercase()
-        val folders = getFolderSet().toMutableSet()
+        val folders = (prefs.getStringSet(KEY_FOLDERS, emptySet()) ?: emptySet()).toMutableSet()
         if (key !in folders) return false
         folders.remove(key)
         prefs.edit()
             .putStringSet(KEY_FOLDERS, folders)
             .remove(folderKey(key))
-            .apply()
+            .commit()
         return true
     }
 
     fun addApp(packageName: String, folder: String): Boolean {
         val key = folder.lowercase()
         if (!folderExists(key)) return false
-        removeAppFromAllFolders(packageName)
-        val apps = getAppsInFolder(key).toMutableSet()
-        apps.add(packageName)
-        prefs.edit().putStringSet(folderKey(key), apps).apply()
+        val edit = prefs.edit()
+        // Remove from every folder and add to target in one atomic write
+        getFolders().forEach { f ->
+            val apps = getAppsInFolder(f).toMutableSet()
+            if (apps.remove(packageName)) edit.putStringSet(folderKey(f), apps)
+        }
+        val target = getAppsInFolder(key).toMutableSet()
+        target.add(packageName)
+        edit.putStringSet(folderKey(key), target)
+        edit.commit()
         return true
     }
 
@@ -49,7 +55,7 @@ class FolderManager(context: Context) {
             val apps = getAppsInFolder(folder).toMutableSet()
             if (apps.remove(packageName)) edit.putStringSet(folderKey(folder), apps)
         }
-        edit.apply()
+        edit.commit()
     }
 
     fun getAppsInFolder(folder: String): Set<String> =
@@ -58,12 +64,8 @@ class FolderManager(context: Context) {
     fun getFolderForApp(packageName: String): String? =
         getFolders().firstOrNull { packageName in getAppsInFolder(it) }
 
-    private fun getFolderSet(): Set<String> =
-        prefs.getStringSet(KEY_FOLDERS, emptySet()) ?: emptySet()
-
-    private fun folderKey(folder: String) = "folder_$folder"
-
     companion object {
         private const val KEY_FOLDERS = "folder_names"
+        private fun folderKey(folder: String) = "folder_$folder"
     }
 }
