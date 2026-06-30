@@ -25,10 +25,11 @@ class SettingsCommand : Command {
         return buildList {
             add(TerminalEntry.info("current settings:"))
             add(TerminalEntry.output("  theme      = $theme"))
+            add(TerminalEntry.output("  ui_mode    = ${s.uiMode.name.lowercase()}"))
             add(TerminalEntry.output("  font_size  = ${s.fontSize.toInt()}sp"))
             add(TerminalEntry.output("  prompt     = ${s.prompt}"))
             add(TerminalEntry.info("use 'settings set <key> <value>' to change"))
-            add(TerminalEntry.info("keys: theme, font_size (8-32), prompt"))
+            add(TerminalEntry.info("keys: theme, ui_mode (terminal|modern), font_size (8-32), prompt"))
         }
     }
 
@@ -50,7 +51,8 @@ class SettingsCommand : Command {
             } else {
                 when (key) {
                     "font_size" -> listOf(TerminalEntry.error("font_size must be a number between 8 and 32"))
-                    else -> listOf(TerminalEntry.error("unknown key '$key' — valid keys: theme, font_size, prompt"))
+                    "ui_mode" -> listOf(TerminalEntry.error("ui_mode must be 'terminal' or 'modern'"))
+                    else -> listOf(TerminalEntry.error("unknown key '$key' — valid keys: theme, ui_mode, font_size, prompt"))
                 }
             }
         }

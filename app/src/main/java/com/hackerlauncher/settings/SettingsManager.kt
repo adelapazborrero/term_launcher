@@ -21,6 +21,11 @@ class SettingsManager(context: Context) {
                 current.copy(fontSize = sp)
             }
             "prompt" -> current.copy(prompt = value)
+            "ui_mode" -> {
+                val mode = UiMode.entries.find { it.name.equals(value, ignoreCase = true) }
+                    ?: return false
+                current.copy(uiMode = mode)
+            }
             else -> return false
         }
         save(updated)
@@ -38,11 +43,14 @@ class SettingsManager(context: Context) {
         prefs.edit()
             .putFloat("font_size", s.fontSize)
             .putString("prompt", s.prompt)
+            .putString("ui_mode", s.uiMode.name)
             .apply()
     }
 
     private fun load() = Settings(
         fontSize = prefs.getFloat("font_size", 14f),
-        prompt = prefs.getString("prompt", "root@hackr:~$ ") ?: "root@hackr:~$ "
+        prompt = prefs.getString("prompt", "root@hackr:~$ ") ?: "root@hackr:~$ ",
+        uiMode = prefs.getString("ui_mode", "TERMINAL")
+            ?.let { name -> UiMode.entries.find { it.name == name } } ?: UiMode.TERMINAL
     )
 }

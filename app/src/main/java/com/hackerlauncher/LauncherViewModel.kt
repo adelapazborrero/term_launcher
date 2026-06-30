@@ -11,6 +11,8 @@ import com.hackerlauncher.commands.CommandProcessor
 import com.hackerlauncher.commands.SessionState
 import com.hackerlauncher.settings.Settings
 import com.hackerlauncher.settings.SettingsManager
+import com.hackerlauncher.settings.UiMode
+import java.util.Calendar
 import com.hackerlauncher.terminal.TerminalEntry
 import com.hackerlauncher.theme.HackerTheme
 import com.hackerlauncher.theme.ThemeManager
@@ -53,6 +55,16 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         val trimmed = input.trim()
         if (trimmed.isEmpty()) return
         val results = processor.process(trimmed)
-        _entries.value = _entries.value + listOf(TerminalEntry.input("$ $trimmed")) + results
+        val modern = settingsManager.settings.value.uiMode == UiMode.MODERN
+        val success = results.none { it.type == TerminalEntry.Type.ERROR }
+        val timestamp = if (modern) currentTime() else null
+        val inputEntry = TerminalEntry.input(trimmed, timestamp, success)
+        val tail = if (modern) listOf(TerminalEntry.divider()) else emptyList()
+        _entries.value = _entries.value + listOf(inputEntry) + results + tail
+    }
+
+    private fun currentTime(): String {
+        val c = Calendar.getInstance()
+        return "%02d:%02d".format(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE))
     }
 }

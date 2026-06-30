@@ -9,8 +9,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import android.graphics.drawable.GradientDrawable
 import com.hackerlauncher.databinding.ActivityLauncherBinding
 import com.hackerlauncher.settings.Settings
+import com.hackerlauncher.settings.UiMode
 import com.hackerlauncher.terminal.TerminalAdapter
 import com.hackerlauncher.theme.HackerTheme
 import kotlinx.coroutines.launch
@@ -37,7 +39,8 @@ class LauncherActivity : AppCompatActivity() {
     private fun setupTerminal() {
         adapter = TerminalAdapter(
             theme = viewModel.currentTheme.value,
-            fontSize = viewModel.currentSettings.value.fontSize
+            fontSize = viewModel.currentSettings.value.fontSize,
+            uiMode = viewModel.currentSettings.value.uiMode
         )
         binding.terminalRecycler.apply {
             layoutManager = LinearLayoutManager(this@LauncherActivity).also {
@@ -84,6 +87,26 @@ class LauncherActivity : AppCompatActivity() {
         binding.promptText.textSize = settings.fontSize
         binding.commandInput.textSize = settings.fontSize
         adapter.updateFontSize(settings.fontSize)
+        adapter.updateUiMode(settings.uiMode)
+        applyInputBarStyle(settings.uiMode)
+    }
+
+    private fun applyInputBarStyle(mode: UiMode) {
+        val theme = viewModel.currentTheme.value
+        if (mode == UiMode.MODERN) {
+            val stroke = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 48f
+                setStroke(2, theme.prompt)
+                setColor(theme.background)
+            }
+            binding.inputBar.background = stroke
+            val pad = (12 * resources.displayMetrics.density).toInt()
+            binding.inputBar.setPadding(pad, pad / 2, pad, pad / 2)
+        } else {
+            binding.inputBar.background = null
+            binding.inputBar.setPadding(0, 0, 0, 0)
+        }
     }
 
     private fun applyTheme(theme: HackerTheme) {
@@ -92,6 +115,7 @@ class LauncherActivity : AppCompatActivity() {
         binding.commandInput.setTextColor(theme.foreground)
         binding.commandInput.setHintTextColor(theme.hint)
         adapter.updateTheme(theme)
+        applyInputBarStyle(viewModel.currentSettings.value.uiMode)
     }
 
     private fun showKeyboard() {
