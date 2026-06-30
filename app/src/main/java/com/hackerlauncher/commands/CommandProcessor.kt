@@ -26,6 +26,10 @@ class CommandProcessor(private val context: CommandContext) {
                 TerminalEntry.info("type 'help' for available commands")
             )
 
+        if (args.firstOrNull() == "-h") {
+            return listOf(TerminalEntry.info(command.description))
+        }
+
         return try {
             command.execute(args, context)
         } catch (e: Exception) {
