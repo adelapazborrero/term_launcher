@@ -10,7 +10,7 @@ class MvCommand : Command {
     override fun execute(args: List<String>, context: CommandContext): List<TerminalEntry> {
         if (args.size < 2) return listOf(TerminalEntry.error("usage: mv <app name> <folder|..>"))
 
-        val dest = args.last().lowercase()
+        val dest = args.last().trimEnd('/').lowercase()
         val query = args.dropLast(1).joinToString(" ")
         val matches = context.appManager.findApps(query)
 

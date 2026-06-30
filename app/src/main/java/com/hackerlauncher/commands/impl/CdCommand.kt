@@ -8,11 +8,15 @@ class CdCommand : Command {
     override val description = "cd [folder|..]  — enter a folder or go back to root"
 
     override fun execute(args: List<String>, context: CommandContext): List<TerminalEntry> {
-        val target = args.joinToString(" ").trim().lowercase()
+        val target = args.joinToString(" ").trimEnd('/').trim().lowercase()
         return when {
             target.isEmpty() || target == ".." -> {
                 context.session.currentFolder = null
                 listOf(TerminalEntry.output("/"))
+            }
+            target == "apps" -> {
+                context.session.currentFolder = "apps"
+                listOf(TerminalEntry.output("/apps"))
             }
             context.folderManager.folderExists(target) -> {
                 context.session.currentFolder = target
