@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/terminal_bg"
+    android:padding="8dp">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/terminal_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="true"
+        android:clipToPadding="false"
+        android:paddingBottom="4dp" />
+
+    <LinearLayout
+        android:id="@+id/input_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="6dp">
+
+        <TextView
+            android:id="@+id/prompt_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/terminal_prompt"
+            android:fontFamily="monospace"
+            android:textSize="14sp"
+            android:text="root@hackr:~$ " />
+
+        <EditText
+            android:id="@+id/command_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@null"
+            android:textColor="@color/terminal_fg"
+            android:fontFamily="monospace"
+            android:textSize="14sp"
+            android:inputType="text|textNoSuggestions"
+            android:imeOptions="actionDone|flagNoFullscreen"
+            android:maxLines="1"
+            android:hint="type a command..."
+            android:textColorHint="@color/terminal_hint" />
+    </LinearLayout>
+
+</LinearLayout>

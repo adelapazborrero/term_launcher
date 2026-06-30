@@ -3,6 +3,7 @@ package com.hackerlauncher.commands
 import com.hackerlauncher.commands.impl.AppsCommand
 import com.hackerlauncher.commands.impl.ClearCommand
 import com.hackerlauncher.commands.impl.FavCommand
+import com.hackerlauncher.commands.impl.SettingsCommand
 import com.hackerlauncher.commands.impl.HelpCommand
 import com.hackerlauncher.commands.impl.InfoCommand
 import com.hackerlauncher.commands.impl.OpenCommand
@@ -32,6 +33,7 @@ object CommandRegistry {
         put("help", help)
         put("?", help)
         put("info", InfoCommand())
+        put("settings", SettingsCommand())
     }
 
     fun get(name: String): Command? = commands[name.lowercase()]

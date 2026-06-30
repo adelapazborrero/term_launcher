@@ -9,7 +9,8 @@ import com.hackerlauncher.theme.HackerTheme
 
 class TerminalAdapter(
     private var entries: List<TerminalEntry> = emptyList(),
-    private var theme: HackerTheme
+    private var theme: HackerTheme,
+    private var fontSize: Float = 14f
 ) : RecyclerView.Adapter<TerminalAdapter.ViewHolder>() {
 
     class ViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
@@ -23,6 +24,7 @@ class TerminalAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val entry = entries[position]
         holder.textView.text = entry.text
+        holder.textView.textSize = fontSize
         holder.textView.setTextColor(
             when (entry.type) {
                 TerminalEntry.Type.INPUT -> theme.prompt
@@ -47,6 +49,11 @@ class TerminalAdapter(
 
     fun updateTheme(newTheme: HackerTheme) {
         theme = newTheme
+        notifyDataSetChanged()
+    }
+
+    fun updateFontSize(sp: Float) {
+        fontSize = sp
         notifyDataSetChanged()
     }
 }

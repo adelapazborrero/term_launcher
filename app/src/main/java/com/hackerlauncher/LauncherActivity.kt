@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hackerlauncher.databinding.ActivityLauncherBinding
+import com.hackerlauncher.settings.Settings
 import com.hackerlauncher.terminal.TerminalAdapter
 import com.hackerlauncher.theme.HackerTheme
 import kotlinx.coroutines.launch
@@ -34,7 +35,10 @@ class LauncherActivity : AppCompatActivity() {
     }
 
     private fun setupTerminal() {
-        adapter = TerminalAdapter(theme = viewModel.currentTheme.value)
+        adapter = TerminalAdapter(
+            theme = viewModel.currentTheme.value,
+            fontSize = viewModel.currentSettings.value.fontSize
+        )
         binding.terminalRecycler.apply {
             layoutManager = LinearLayoutManager(this@LauncherActivity).also {
                 it.stackFromEnd = true
@@ -70,6 +74,16 @@ class LauncherActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.currentTheme.collect { theme -> applyTheme(theme) }
         }
+        lifecycleScope.launch {
+            viewModel.currentSettings.collect { settings -> applySettings(settings) }
+        }
+    }
+
+    private fun applySettings(settings: Settings) {
+        binding.promptText.text = settings.prompt
+        binding.promptText.textSize = settings.fontSize
+        binding.commandInput.textSize = settings.fontSize
+        adapter.updateFontSize(settings.fontSize)
     }
 
     private fun applyTheme(theme: HackerTheme) {

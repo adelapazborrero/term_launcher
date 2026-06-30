@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.hackerlauncher.app-mergeDebugResources-29:/layout/item_terminal_entry.xml",
+        "source": "com.hackerlauncher.app-main-32:/layout/item_terminal_entry.xml"
+    },
+    {
+        "merged": "com.hackerlauncher.app-mergeDebugResources-29:/layout/activity_launcher.xml",
+        "source": "com.hackerlauncher.app-main-32:/layout/activity_launcher.xml"
+    }
+]

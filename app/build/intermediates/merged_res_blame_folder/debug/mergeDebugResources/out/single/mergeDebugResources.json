@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.hackerlauncher.app-debug-30:/layout_item_terminal_entry.xml.flat",
+        "source": "com.hackerlauncher.app-main-32:/layout/item_terminal_entry.xml"
+    },
+    {
+        "merged": "com.hackerlauncher.app-debug-30:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.hackerlauncher.app-main-32:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.hackerlauncher.app-debug-30:/layout_activity_launcher.xml.flat",
+        "source": "com.hackerlauncher.app-main-32:/layout/activity_launcher.xml"
+    }
+]
