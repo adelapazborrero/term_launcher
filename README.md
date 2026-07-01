@@ -16,7 +16,7 @@ A home screen replacement for Android with a terminal aesthetic. No icons, no wi
 - **Favorites** — pin your most-used apps so `open` finds them first
 - **Aliases** — map short commands to longer ones (`alias br "open brave"`)
 - **Persistent settings** — theme, font size, prompt string, and UI mode all survive restarts
-- **5 built-in themes** — matrix, blood, ice, amber, ghost
+- **8 built-in themes** — matrix, blood, ice, amber, ghost, ubuntu, dracula, frappe
 - **Fully customizable prompt** — change the prompt string to anything you like
 
 ---

@@ -63,5 +63,35 @@ object Themes {
         hint = Color.parseColor("#444444")
     )
 
-    val ALL = listOf(MATRIX, BLOOD, ICE, AMBER, GHOST)
+    val UBUNTU = HackerTheme(
+        name = "ubuntu",
+        background = Color.parseColor("#2C001E"),
+        foreground = Color.parseColor("#FFFFFF"),
+        prompt = Color.parseColor("#E95420"),
+        error = Color.parseColor("#C7162B"),
+        info = Color.parseColor("#77216F"),
+        hint = Color.parseColor("#4C1036")
+    )
+
+    val DRACULA = HackerTheme(
+        name = "dracula",
+        background = Color.parseColor("#282A36"),
+        foreground = Color.parseColor("#F8F8F2"),
+        prompt = Color.parseColor("#BD93F9"),
+        error = Color.parseColor("#FF5555"),
+        info = Color.parseColor("#6272A4"),
+        hint = Color.parseColor("#44475A")
+    )
+
+    val FRAPPE = HackerTheme(
+        name = "frappe",
+        background = Color.parseColor("#303446"),
+        foreground = Color.parseColor("#C6D0F5"),
+        prompt = Color.parseColor("#CA9EE6"),
+        error = Color.parseColor("#E78284"),
+        info = Color.parseColor("#A6D189"),
+        hint = Color.parseColor("#626880")
+    )
+
+    val ALL = listOf(MATRIX, BLOOD, ICE, AMBER, GHOST, UBUNTU, DRACULA, FRAPPE)
 }

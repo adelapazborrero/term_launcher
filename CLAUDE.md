@@ -79,7 +79,7 @@ Controlled by `settings set ui_mode terminal|modern`. The Activity collects `cur
 - Entries that represent an app (from `apps`, `ls`, `fav list`, `fav add/remove` multi-match, `open` multi-match) render as a bordered card with the app icon and name on the left and three action buttons on the right: `▶` launch, `ⓘ` open system App Info, `★`/`☆` toggle favorite (filled when favorited)
 - `settings` (bare/`list`) renders as an interactive panel instead of plain text: theme chips, a terminal/modern toggle, a font-size stepper, and an editable prompt field, with cancel/save buttons at the bottom. Edits are local to the panel (a `SettingsSnapshot` captured at command time) until Save is tapped; Save applies the changes and closes the panel (removed from entries + a "settings saved" line). Cancel closes the panel without saving. Terminal mode keeps the original plain-text listing.
 - `alias` (bare/`list`) renders as an interactive panel the same way: existing aliases listed with a `✕` remove button each, plus name/command fields and a `➕` add button to stage new ones (an `AliasSnapshot` captured at command time). Save diffs the staged list against the snapshot (removes dropped names, sets the rest) and closes the panel; Cancel closes without saving. Terminal mode keeps the original plain-text listing.
-- `themes` renders as a panel of theme chips (a `ThemeSnapshot` captured at command time); tapping a chip applies that theme immediately via `ThemeManager` — no draft/save step, since there's nothing to stage. The active chip is derived live from the adapter's current `theme`, so it re-highlights correctly on every rebind. Terminal mode keeps the original plain-text listing.
+- `themes` renders as a panel of theme chips (a `ThemeSnapshot` captured at command time); tapping a chip applies that theme immediately via `ThemeManager` — no draft/save step, since there's nothing to stage. The active chip is derived live from the adapter's current `theme`, so it re-highlights correctly on every rebind. Terminal mode keeps the original plain-text listing. Theme chips (here and in the settings panel) wrap into fixed rows of `THEME_CHIPS_PER_ROW` (3) via `TerminalAdapter.buildThemeChips()` — deliberately not a scrollable single row, so all themes stay visible without a hidden scroll affordance.
 - `ls` at root tags each folder line with `folderName` (`TerminalEntry.folder()`), rendering a line-based outline folder icon (`ic_folder_outline`, tinted to `theme.foreground`) + name (brackets stripped) instead of plain `[name]` text. Terminal mode keeps the original plain-text listing.
 
 ### Command Processing
@@ -142,7 +142,7 @@ All user data is stored in SharedPreferences and survives app restarts:
 | `settings/Settings.kt` | `Settings` data class + `UiMode` enum |
 | `settings/SettingsManager.kt` | Persists settings; exposes `StateFlow<Settings>` |
 | `theme/ThemeManager.kt` | Active theme; persists name; exposes `StateFlow<HackerTheme>` |
-| `theme/HackerTheme.kt` | Theme data class + predefined themes: matrix, blood, ice, amber, ghost |
+| `theme/HackerTheme.kt` | Theme data class + predefined themes: matrix, blood, ice, amber, ghost, ubuntu, dracula, frappe |
 | `terminal/TerminalAdapter.kt` | RecyclerView adapter; 3 view types: text, modern-input, divider |
 | `terminal/TerminalEntry.kt` | Data class: text, type, timestamp, success |
 
@@ -179,7 +179,7 @@ Every command supports `-h` for inline help (handled globally in `CommandProcess
 
 | Key | Values | Default |
 |---|---|---|
-| `theme` | matrix, blood, ice, amber, ghost | matrix |
+| `theme` | matrix, blood, ice, amber, ghost, ubuntu, dracula, frappe | matrix |
 | `ui_mode` | terminal, modern | terminal |
 | `font_size` | 8–32 (sp) | 14 |
 | `prompt` | any string | `root@hackr:~$ ` |

@@ -215,33 +215,11 @@ class TerminalAdapter(
         }
 
         fun render() {
-            holder.themeContainer.removeAllViews()
-            snap.availableThemes.forEach { name ->
-                val chipTheme = Themes.ALL.find { it.name == name }
-                val selected = name == holder.draftTheme
-                val accent = chipTheme?.foreground ?: theme.foreground
-                val chip = TextView(holder.itemView.context).apply {
-                    text = name
-                    textSize = fontSize * 0.9f
-                    setPadding((10 * dp).toInt(), (4 * dp).toInt(), (10 * dp).toInt(), (4 * dp).toInt())
-                    background = GradientDrawable().apply {
-                        shape = GradientDrawable.RECTANGLE
-                        cornerRadius = 6f * dp
-                        setStroke((1f * dp).toInt(), accent)
-                        setColor(if (selected) accent else theme.background)
-                    }
-                    setTextColor(if (selected) theme.background else accent)
-                    setOnClickListener {
-                        holder.draftTheme = name
-                        render()
-                    }
-                }
-                val lp = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply { marginEnd = (6 * dp).toInt() }
-                holder.themeContainer.addView(chip, lp)
-            }
+            buildThemeChips(
+                holder.themeContainer, dp, snap.availableThemes,
+                isSelected = { it == holder.draftTheme },
+                onSelect = { name -> holder.draftTheme = name; render() }
+            )
 
             listOf(holder.modeTerminalBtn to UiMode.TERMINAL, holder.modeModernBtn to UiMode.MODERN).forEach { (btn, mode) ->
                 val selected = holder.draftMode == mode
@@ -394,29 +372,54 @@ class TerminalAdapter(
             setColor(theme.background)
         }
 
-        holder.themeContainer.removeAllViews()
-        snap.availableThemes.forEach { name ->
-            val chipTheme = Themes.ALL.find { it.name == name }
-            val selected = name == theme.name
-            val accent = chipTheme?.foreground ?: theme.foreground
-            val chip = TextView(holder.itemView.context).apply {
-                text = name
-                textSize = fontSize * 0.9f
-                setPadding((10 * dp).toInt(), (4 * dp).toInt(), (10 * dp).toInt(), (4 * dp).toInt())
-                background = GradientDrawable().apply {
-                    shape = GradientDrawable.RECTANGLE
-                    cornerRadius = 6f * dp
-                    setStroke((1f * dp).toInt(), accent)
-                    setColor(if (selected) accent else theme.background)
-                }
-                setTextColor(if (selected) theme.background else accent)
-                setOnClickListener { onSelectTheme(name) }
+        buildThemeChips(
+            holder.themeContainer, dp, snap.availableThemes,
+            isSelected = { it == theme.name },
+            onSelect = { name -> onSelectTheme(name) }
+        )
+    }
+
+    private fun buildThemeChips(
+        container: LinearLayout,
+        dp: Float,
+        themeNames: List<String>,
+        isSelected: (String) -> Boolean,
+        onSelect: (String) -> Unit
+    ) {
+        val context = container.context
+        container.removeAllViews()
+        themeNames.chunked(THEME_CHIPS_PER_ROW).forEach { rowNames ->
+            val row = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
             }
-            val lp = LinearLayout.LayoutParams(
+            val rowLp = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { marginEnd = (6 * dp).toInt() }
-            holder.themeContainer.addView(chip, lp)
+            ).apply { bottomMargin = (6 * dp).toInt() }
+            rowNames.forEach { name ->
+                val chipTheme = Themes.ALL.find { it.name == name }
+                val selected = isSelected(name)
+                val accent = chipTheme?.foreground ?: theme.foreground
+                val chip = TextView(context).apply {
+                    text = name
+                    textSize = fontSize * 0.9f
+                    setPadding((10 * dp).toInt(), (4 * dp).toInt(), (10 * dp).toInt(), (4 * dp).toInt())
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.RECTANGLE
+                        cornerRadius = 6f * dp
+                        setStroke((1f * dp).toInt(), accent)
+                        setColor(if (selected) accent else theme.background)
+                    }
+                    setTextColor(if (selected) theme.background else accent)
+                    setOnClickListener { onSelect(name) }
+                }
+                val chipLp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { marginEnd = (6 * dp).toInt() }
+                row.addView(chip, chipLp)
+            }
+            container.addView(row, rowLp)
         }
     }
 
@@ -474,5 +477,6 @@ class TerminalAdapter(
         private const val VIEW_ALIAS_PANEL = 5
         private const val VIEW_THEME_PANEL = 6
         private const val VIEW_FOLDER_ENTRY_MODERN = 7
+        private const val THEME_CHIPS_PER_ROW = 3
     }
 }
