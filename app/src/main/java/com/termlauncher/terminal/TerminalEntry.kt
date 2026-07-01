@@ -11,9 +11,10 @@ data class TerminalEntry(
     val packageName: String? = null,
     val settingsSnapshot: SettingsSnapshot? = null,
     val aliasSnapshot: AliasSnapshot? = null,
+    val themeSnapshot: ThemeSnapshot? = null,
     val id: Long = nextId()
 ) {
-    enum class Type { INPUT, OUTPUT, ERROR, INFO, DIVIDER, SETTINGS_PANEL, ALIAS_PANEL }
+    enum class Type { INPUT, OUTPUT, ERROR, INFO, DIVIDER, SETTINGS_PANEL, ALIAS_PANEL, THEME_PANEL }
 
     companion object {
         private val idCounter = AtomicLong(0)
@@ -30,6 +31,8 @@ data class TerminalEntry(
             TerminalEntry("⚙ settings", Type.SETTINGS_PANEL, settingsSnapshot = snapshot)
         fun aliasPanel(snapshot: AliasSnapshot) =
             TerminalEntry("⌘ alias", Type.ALIAS_PANEL, aliasSnapshot = snapshot)
+        fun themePanel(snapshot: ThemeSnapshot) =
+            TerminalEntry("🎨 themes", Type.THEME_PANEL, themeSnapshot = snapshot)
     }
 }
 
@@ -43,4 +46,8 @@ data class SettingsSnapshot(
 
 data class AliasSnapshot(
     val aliases: List<Pair<String, String>>
+)
+
+data class ThemeSnapshot(
+    val availableThemes: List<String>
 )

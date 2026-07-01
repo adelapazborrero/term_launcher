@@ -28,7 +28,8 @@ class TerminalAdapter(
     private val iconFor: (String) -> Drawable? = { null },
     private val onSaveSettings: (id: Long, theme: String, uiMode: UiMode, fontSize: Float, prompt: String) -> Unit = { _, _, _, _, _ -> },
     private val onSaveAliases: (id: Long, original: List<Pair<String, String>>, updated: List<Pair<String, String>>) -> Unit = { _, _, _ -> },
-    private val onClosePanel: (id: Long) -> Unit = {}
+    private val onClosePanel: (id: Long) -> Unit = {},
+    private val onSelectTheme: (String) -> Unit = {}
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     class TextViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
@@ -67,6 +68,10 @@ class TerminalAdapter(
         var draft: MutableList<Pair<String, String>> = mutableListOf()
     }
 
+    class ThemePanelViewHolder(root: View) : RecyclerView.ViewHolder(root) {
+        val themeContainer: LinearLayout = root.findViewById(R.id.theme_chip_container)
+    }
+
     class AppEntryViewHolder(root: View) : RecyclerView.ViewHolder(root) {
         val icon: ImageView = root.findViewById(R.id.app_icon)
         val label: TextView = root.findViewById(R.id.app_label)
@@ -82,6 +87,7 @@ class TerminalAdapter(
             entry.type == TerminalEntry.Type.INPUT && uiMode == UiMode.MODERN -> VIEW_INPUT_MODERN
             entry.type == TerminalEntry.Type.SETTINGS_PANEL && uiMode == UiMode.MODERN -> VIEW_SETTINGS_PANEL
             entry.type == TerminalEntry.Type.ALIAS_PANEL && uiMode == UiMode.MODERN -> VIEW_ALIAS_PANEL
+            entry.type == TerminalEntry.Type.THEME_PANEL && uiMode == UiMode.MODERN -> VIEW_THEME_PANEL
             entry.packageName != null && uiMode == UiMode.MODERN -> VIEW_APP_ENTRY_MODERN
             else -> VIEW_TEXT
         }
@@ -105,6 +111,9 @@ class TerminalAdapter(
             VIEW_ALIAS_PANEL -> AliasPanelViewHolder(
                 inflater.inflate(R.layout.item_alias_panel_modern, parent, false)
             )
+            VIEW_THEME_PANEL -> ThemePanelViewHolder(
+                inflater.inflate(R.layout.item_theme_panel_modern, parent, false)
+            )
             else -> TextViewHolder(
                 inflater.inflate(R.layout.item_terminal_entry, parent, false) as TextView
             )
@@ -120,6 +129,7 @@ class TerminalAdapter(
             is AppEntryViewHolder -> bindAppEntry(holder, entry)
             is SettingsPanelViewHolder -> bindSettingsPanel(holder, entry)
             is AliasPanelViewHolder -> bindAliasPanel(holder, entry)
+            is ThemePanelViewHolder -> bindThemePanel(holder, entry)
         }
     }
 
@@ -337,6 +347,42 @@ class TerminalAdapter(
         }
     }
 
+    private fun bindThemePanel(holder: ThemePanelViewHolder, entry: TerminalEntry) {
+        val snap = entry.themeSnapshot ?: return
+        val dp = holder.itemView.resources.displayMetrics.density
+        holder.itemView.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 10f * dp
+            setStroke((1.5f * dp).toInt(), theme.prompt)
+            setColor(theme.background)
+        }
+
+        holder.themeContainer.removeAllViews()
+        snap.availableThemes.forEach { name ->
+            val chipTheme = Themes.ALL.find { it.name == name }
+            val selected = name == theme.name
+            val accent = chipTheme?.foreground ?: theme.foreground
+            val chip = TextView(holder.itemView.context).apply {
+                text = name
+                textSize = fontSize * 0.9f
+                setPadding((10 * dp).toInt(), (4 * dp).toInt(), (10 * dp).toInt(), (4 * dp).toInt())
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = 6f * dp
+                    setStroke((1f * dp).toInt(), accent)
+                    setColor(if (selected) accent else theme.background)
+                }
+                setTextColor(if (selected) theme.background else accent)
+                setOnClickListener { onSelectTheme(name) }
+            }
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { marginEnd = (6 * dp).toInt() }
+            holder.themeContainer.addView(chip, lp)
+        }
+    }
+
     private fun colorFor(entry: TerminalEntry) = when (entry.type) {
         TerminalEntry.Type.INPUT -> theme.prompt
         TerminalEntry.Type.OUTPUT -> theme.foreground
@@ -345,6 +391,7 @@ class TerminalAdapter(
         TerminalEntry.Type.DIVIDER -> theme.foreground
         TerminalEntry.Type.SETTINGS_PANEL -> theme.foreground
         TerminalEntry.Type.ALIAS_PANEL -> theme.foreground
+        TerminalEntry.Type.THEME_PANEL -> theme.foreground
     }
 
     override fun getItemCount() = entries.size
@@ -381,5 +428,6 @@ class TerminalAdapter(
         private const val VIEW_APP_ENTRY_MODERN = 3
         private const val VIEW_SETTINGS_PANEL = 4
         private const val VIEW_ALIAS_PANEL = 5
+        private const val VIEW_THEME_PANEL = 6
     }
 }

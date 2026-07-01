@@ -103,6 +103,10 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         _entries.value = _entries.value.filterNot { it.id == panelId }
     }
 
+    fun selectTheme(name: String) {
+        themeManager.setTheme(name)
+    }
+
     private fun currentTime(): String {
         val c = Calendar.getInstance()
         return "%02d:%02d".format(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE))
