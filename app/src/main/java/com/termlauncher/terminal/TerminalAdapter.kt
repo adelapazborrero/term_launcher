@@ -77,7 +77,7 @@ class TerminalAdapter(
     }
 
     class FolderEntryViewHolder(root: View) : RecyclerView.ViewHolder(root) {
-        val icon: TextView = root.findViewById(R.id.folder_icon)
+        val icon: ImageView = root.findViewById(R.id.folder_icon)
         val label: TextView = root.findViewById(R.id.folder_label)
     }
 
@@ -421,7 +421,7 @@ class TerminalAdapter(
     }
 
     private fun bindFolderEntry(holder: FolderEntryViewHolder, entry: TerminalEntry) {
-        holder.icon.textSize = fontSize
+        holder.icon.setColorFilter(theme.foreground)
         holder.label.textSize = fontSize
         holder.label.text = entry.text.trim().removePrefix("[").removeSuffix("]")
         holder.label.setTextColor(theme.foreground)
