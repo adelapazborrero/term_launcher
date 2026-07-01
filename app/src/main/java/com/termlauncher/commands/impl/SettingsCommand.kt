@@ -2,6 +2,8 @@ package com.termlauncher.commands.impl
 
 import com.termlauncher.commands.Command
 import com.termlauncher.commands.CommandContext
+import com.termlauncher.settings.UiMode
+import com.termlauncher.terminal.SettingsSnapshot
 import com.termlauncher.terminal.TerminalEntry
 
 class SettingsCommand : Command {
@@ -9,7 +11,11 @@ class SettingsCommand : Command {
 
     override fun execute(args: List<String>, context: CommandContext): List<TerminalEntry> {
         return when (args.firstOrNull()?.lowercase()) {
-            "list", null -> listSettings(context)
+            "list", null -> if (context.settingsManager.getAll().uiMode == UiMode.MODERN) {
+                listOf(buildPanel(context))
+            } else {
+                listSettings(context)
+            }
             "set" -> setKey(args.drop(1), context)
             "reset" -> {
                 context.settingsManager.reset()
@@ -17,6 +23,19 @@ class SettingsCommand : Command {
             }
             else -> listOf(TerminalEntry.error("usage: settings <list|set|reset> [key] [value]"))
         }
+    }
+
+    private fun buildPanel(context: CommandContext): TerminalEntry {
+        val s = context.settingsManager.getAll()
+        return TerminalEntry.settingsPanel(
+            SettingsSnapshot(
+                theme = context.themeManager.currentTheme.value.name,
+                availableThemes = context.themeManager.getAvailableThemes(),
+                uiMode = s.uiMode,
+                fontSize = s.fontSize,
+                prompt = s.prompt
+            )
+        )
     }
 
     private fun listSettings(context: CommandContext): List<TerminalEntry> {

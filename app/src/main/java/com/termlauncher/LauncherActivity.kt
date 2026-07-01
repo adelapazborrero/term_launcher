@@ -49,7 +49,8 @@ class LauncherActivity : AppCompatActivity() {
             onAppInfo = { packageName -> openAppInfo(packageName) },
             onToggleFavorite = { packageName -> viewModel.toggleFavorite(packageName) },
             isFavorite = { packageName -> viewModel.isFavorite(packageName) },
-            iconFor = { packageName -> viewModel.iconFor(packageName) }
+            iconFor = { packageName -> viewModel.iconFor(packageName) },
+            onSaveSettings = { id, theme, mode, fontSize, prompt -> viewModel.applySettings(id, theme, mode, fontSize, prompt) }
         )
         binding.terminalRecycler.apply {
             layoutManager = LinearLayoutManager(this@LauncherActivity).also {

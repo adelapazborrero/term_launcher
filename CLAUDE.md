@@ -77,6 +77,7 @@ Controlled by `settings set ui_mode terminal|modern`. The Activity collects `cur
 - INPUT entries render with a `◎` indicator (green = `theme.foreground`, red = `theme.error`), command text, and `HH:mm` timestamp right-aligned
 - A faint divider line is appended after each command block
 - Entries that represent an app (from `apps`, `ls`, `fav list`, `fav add/remove` multi-match, `open` multi-match) render as a bordered card with the app icon and name on the left and three action buttons on the right: `▶` launch, `ⓘ` open system App Info, `★`/`☆` toggle favorite (filled when favorited)
+- `settings` (bare/`list`) renders as an interactive panel instead of plain text: theme chips, a terminal/modern toggle, a font-size stepper, and an editable prompt field, with cancel/save buttons at the bottom. Edits are local to the panel (a `SettingsSnapshot` captured at command time) until Save is tapped; Save applies the changes and replaces the panel with a "settings saved" line. Terminal mode keeps the original plain-text listing.
 
 ### Command Processing
 

@@ -1,16 +1,20 @@
 package com.termlauncher.terminal
 
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.termlauncher.R
 import com.termlauncher.settings.UiMode
 import com.termlauncher.theme.HackerTheme
+import com.termlauncher.theme.Themes
 
 class TerminalAdapter(
     private var entries: List<TerminalEntry> = emptyList(),
@@ -21,7 +25,8 @@ class TerminalAdapter(
     private val onAppInfo: (String) -> Unit = {},
     private val onToggleFavorite: (String) -> Unit = {},
     private val isFavorite: (String) -> Boolean = { false },
-    private val iconFor: (String) -> Drawable? = { null }
+    private val iconFor: (String) -> Drawable? = { null },
+    private val onSaveSettings: (id: Long, theme: String, uiMode: UiMode, fontSize: Float, prompt: String) -> Unit = { _, _, _, _, _ -> }
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     class TextViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
@@ -33,6 +38,21 @@ class TerminalAdapter(
     }
 
     class DividerViewHolder(val view: View) : RecyclerView.ViewHolder(view)
+
+    class SettingsPanelViewHolder(root: View) : RecyclerView.ViewHolder(root) {
+        val themeContainer: LinearLayout = root.findViewById(R.id.theme_chip_container)
+        val modeTerminalBtn: TextView = root.findViewById(R.id.mode_terminal_btn)
+        val modeModernBtn: TextView = root.findViewById(R.id.mode_modern_btn)
+        val fontMinus: TextView = root.findViewById(R.id.font_minus)
+        val fontPlus: TextView = root.findViewById(R.id.font_plus)
+        val fontValue: TextView = root.findViewById(R.id.font_value)
+        val promptInput: EditText = root.findViewById(R.id.prompt_input)
+        val cancelBtn: TextView = root.findViewById(R.id.cancel_btn)
+        val saveBtn: TextView = root.findViewById(R.id.save_btn)
+        var draftTheme: String = ""
+        var draftMode: UiMode = UiMode.TERMINAL
+        var draftFontSize: Float = 14f
+    }
 
     class AppEntryViewHolder(root: View) : RecyclerView.ViewHolder(root) {
         val icon: ImageView = root.findViewById(R.id.app_icon)
@@ -47,6 +67,7 @@ class TerminalAdapter(
         return when {
             entry.type == TerminalEntry.Type.DIVIDER -> VIEW_DIVIDER
             entry.type == TerminalEntry.Type.INPUT && uiMode == UiMode.MODERN -> VIEW_INPUT_MODERN
+            entry.type == TerminalEntry.Type.SETTINGS_PANEL && uiMode == UiMode.MODERN -> VIEW_SETTINGS_PANEL
             entry.packageName != null && uiMode == UiMode.MODERN -> VIEW_APP_ENTRY_MODERN
             else -> VIEW_TEXT
         }
@@ -64,6 +85,9 @@ class TerminalAdapter(
             VIEW_APP_ENTRY_MODERN -> AppEntryViewHolder(
                 inflater.inflate(R.layout.item_app_entry_modern, parent, false)
             )
+            VIEW_SETTINGS_PANEL -> SettingsPanelViewHolder(
+                inflater.inflate(R.layout.item_settings_panel_modern, parent, false)
+            )
             else -> TextViewHolder(
                 inflater.inflate(R.layout.item_terminal_entry, parent, false) as TextView
             )
@@ -77,6 +101,7 @@ class TerminalAdapter(
             is ModernInputViewHolder -> bindModernInput(holder, entry)
             is DividerViewHolder -> holder.view.setBackgroundColor(theme.foreground)
             is AppEntryViewHolder -> bindAppEntry(holder, entry)
+            is SettingsPanelViewHolder -> bindSettingsPanel(holder, entry)
         }
     }
 
@@ -137,12 +162,101 @@ class TerminalAdapter(
         }
     }
 
+    private fun bindSettingsPanel(holder: SettingsPanelViewHolder, entry: TerminalEntry) {
+        val snap = entry.settingsSnapshot ?: return
+        val dp = holder.itemView.resources.displayMetrics.density
+        holder.itemView.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 10f * dp
+            setStroke((1.5f * dp).toInt(), theme.prompt)
+            setColor(theme.background)
+        }
+
+        fun render() {
+            holder.themeContainer.removeAllViews()
+            snap.availableThemes.forEach { name ->
+                val chipTheme = Themes.ALL.find { it.name == name }
+                val selected = name == holder.draftTheme
+                val accent = chipTheme?.foreground ?: theme.foreground
+                val chip = TextView(holder.itemView.context).apply {
+                    text = name
+                    textSize = fontSize * 0.9f
+                    setPadding((10 * dp).toInt(), (4 * dp).toInt(), (10 * dp).toInt(), (4 * dp).toInt())
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.RECTANGLE
+                        cornerRadius = 6f * dp
+                        setStroke((1f * dp).toInt(), accent)
+                        setColor(if (selected) accent else theme.background)
+                    }
+                    setTextColor(if (selected) theme.background else accent)
+                    setOnClickListener {
+                        holder.draftTheme = name
+                        render()
+                    }
+                }
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { marginEnd = (6 * dp).toInt() }
+                holder.themeContainer.addView(chip, lp)
+            }
+
+            listOf(holder.modeTerminalBtn to UiMode.TERMINAL, holder.modeModernBtn to UiMode.MODERN).forEach { (btn, mode) ->
+                val selected = holder.draftMode == mode
+                btn.textSize = fontSize * 0.95f
+                btn.setTextColor(if (selected) theme.prompt else theme.hint)
+                btn.setTypeface(null, if (selected) Typeface.BOLD else Typeface.NORMAL)
+            }
+
+            holder.fontValue.textSize = fontSize * 0.95f
+            holder.fontValue.setTextColor(theme.foreground)
+            holder.fontValue.text = "${holder.draftFontSize.toInt()}sp"
+        }
+
+        holder.draftTheme = snap.theme
+        holder.draftMode = snap.uiMode
+        holder.draftFontSize = snap.fontSize
+        holder.promptInput.setText(snap.prompt)
+        holder.promptInput.textSize = fontSize * 0.95f
+        holder.promptInput.setTextColor(theme.foreground)
+        render()
+
+        holder.modeTerminalBtn.setOnClickListener { holder.draftMode = UiMode.TERMINAL; render() }
+        holder.modeModernBtn.setOnClickListener { holder.draftMode = UiMode.MODERN; render() }
+
+        holder.fontMinus.setTextColor(theme.prompt)
+        holder.fontPlus.setTextColor(theme.prompt)
+        holder.fontMinus.setOnClickListener {
+            holder.draftFontSize = (holder.draftFontSize - 1f).coerceAtLeast(8f)
+            render()
+        }
+        holder.fontPlus.setOnClickListener {
+            holder.draftFontSize = (holder.draftFontSize + 1f).coerceAtMost(32f)
+            render()
+        }
+
+        holder.cancelBtn.setTextColor(theme.hint)
+        holder.cancelBtn.setOnClickListener {
+            holder.draftTheme = snap.theme
+            holder.draftMode = snap.uiMode
+            holder.draftFontSize = snap.fontSize
+            holder.promptInput.setText(snap.prompt)
+            render()
+        }
+
+        holder.saveBtn.setTextColor(theme.prompt)
+        holder.saveBtn.setOnClickListener {
+            onSaveSettings(entry.id, holder.draftTheme, holder.draftMode, holder.draftFontSize, holder.promptInput.text.toString())
+        }
+    }
+
     private fun colorFor(entry: TerminalEntry) = when (entry.type) {
         TerminalEntry.Type.INPUT -> theme.prompt
         TerminalEntry.Type.OUTPUT -> theme.foreground
         TerminalEntry.Type.ERROR -> theme.error
         TerminalEntry.Type.INFO -> theme.info
         TerminalEntry.Type.DIVIDER -> theme.foreground
+        TerminalEntry.Type.SETTINGS_PANEL -> theme.foreground
     }
 
     override fun getItemCount() = entries.size
@@ -177,5 +291,6 @@ class TerminalAdapter(
         private const val VIEW_INPUT_MODERN = 1
         private const val VIEW_DIVIDER = 2
         private const val VIEW_APP_ENTRY_MODERN = 3
+        private const val VIEW_SETTINGS_PANEL = 4
     }
 }

@@ -84,6 +84,14 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun applySettings(panelId: Long, theme: String, uiMode: UiMode, fontSize: Float, prompt: String) {
+        themeManager.setTheme(theme)
+        settingsManager.set("ui_mode", uiMode.name)
+        settingsManager.set("font_size", fontSize.toInt().toString())
+        settingsManager.set("prompt", prompt)
+        _entries.value = _entries.value.filterNot { it.id == panelId } + TerminalEntry.output("settings saved")
+    }
+
     private fun currentTime(): String {
         val c = Calendar.getInstance()
         return "%02d:%02d".format(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE))
