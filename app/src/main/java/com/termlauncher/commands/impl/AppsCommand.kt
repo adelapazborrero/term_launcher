@@ -36,7 +36,7 @@ class AppsCommand : Command {
             add(TerminalEntry.info("no uncategorized apps"))
         } else {
             add(TerminalEntry.info("[apps] — ${apps.size} app(s):"))
-            apps.forEach { add(TerminalEntry.output("  ${it.label}")) }
+            apps.forEach { add(TerminalEntry.app("  ${it.label}", it.packageName)) }
         }
     }
 
@@ -47,7 +47,7 @@ class AppsCommand : Command {
             add(TerminalEntry.info("[$folder] is empty — use 'mv <app> $folder' to add apps"))
         } else {
             add(TerminalEntry.info("[$folder] — ${apps.size} app(s):"))
-            apps.sortedBy { it.label.lowercase() }.forEach { add(TerminalEntry.output("  ${it.label}")) }
+            apps.sortedBy { it.label.lowercase() }.forEach { add(TerminalEntry.app("  ${it.label}", it.packageName)) }
         }
     }
 }

@@ -63,6 +63,27 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         _entries.value = _entries.value + listOf(inputEntry) + results + tail
     }
 
+    fun launchApp(packageName: String) {
+        val app = appManager.getApps().find { it.packageName == packageName } ?: return
+        appManager.launch(app)
+        _entries.value = _entries.value + TerminalEntry.info("launching ${app.label}...")
+    }
+
+    fun iconFor(packageName: String) = appManager.iconFor(packageName)
+
+    fun isFavorite(packageName: String) = favoritesManager.contains(packageName)
+
+    fun toggleFavorite(packageName: String) {
+        val app = appManager.getApps().find { it.packageName == packageName } ?: return
+        if (favoritesManager.contains(packageName)) {
+            favoritesManager.remove(packageName)
+            _entries.value = _entries.value + TerminalEntry.info("removed ${app.label} from favorites")
+        } else {
+            favoritesManager.add(packageName)
+            _entries.value = _entries.value + TerminalEntry.info("added ${app.label} to favorites")
+        }
+    }
+
     private fun currentTime(): String {
         val c = Calendar.getInstance()
         return "%02d:%02d".format(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE))

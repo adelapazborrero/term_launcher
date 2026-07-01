@@ -37,7 +37,8 @@ class AppManager(private val context: Context) {
                 AppInfo(
                     label = info.loadLabel(pm).toString(),
                     packageName = info.activityInfo.packageName,
-                    launchIntent = launch
+                    launchIntent = launch,
+                    icon = info.loadIcon(pm)
                 )
             }
             .sortedBy { it.label.lowercase() }
@@ -59,6 +60,8 @@ class AppManager(private val context: Context) {
                 }
             }
     }
+
+    fun iconFor(packageName: String) = cache.find { it.packageName == packageName }?.icon
 
     fun launch(app: AppInfo) {
         val intent = app.launchIntent.apply {

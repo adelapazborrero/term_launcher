@@ -64,7 +64,7 @@ The screen is split into two parts:
 - **Output area** (`RecyclerView`): scrollable list of `TerminalEntry` items. New entries append at the bottom; the list auto-scrolls. `TerminalAdapter` uses three view types depending on the active UI mode.
 - **Input bar** (pinned `LinearLayout` at bottom): prompt `TextView` + command `EditText`.
 
-`TerminalEntry` carries: `text`, `type` (INPUT/OUTPUT/ERROR/INFO/DIVIDER), `timestamp` (set in modern mode), `success` (true/false for INPUT entries, drives indicator color).
+`TerminalEntry` carries: `text`, `type` (INPUT/OUTPUT/ERROR/INFO/DIVIDER), `timestamp` (set in modern mode), `success` (true/false for INPUT entries, drives indicator color), `packageName` (set via `TerminalEntry.app()` on app-listing lines; drives the modern-mode play button).
 
 ### UI Modes
 
@@ -76,6 +76,7 @@ Controlled by `settings set ui_mode terminal|modern`. The Activity collects `cur
 - Input bar gets a rounded rectangle border (10dp corners) in the theme's prompt color
 - INPUT entries render with a `◎` indicator (green = `theme.foreground`, red = `theme.error`), command text, and `HH:mm` timestamp right-aligned
 - A faint divider line is appended after each command block
+- Entries that represent an app (from `apps`, `ls`, `fav list`, `fav add/remove` multi-match, `open` multi-match) render as a bordered card with the app icon and name on the left and three action buttons on the right: `▶` launch, `ⓘ` open system App Info, `★`/`☆` toggle favorite (filled when favorited)
 
 ### Command Processing
 
@@ -106,7 +107,7 @@ Apps can be organized into named folders. `FolderManager` persists folder names 
 
 ### App Management
 
-`AppManager` queries `PackageManager` for all apps with `CATEGORY_LAUNCHER`. Caches the list and refreshes on package add/remove/replace broadcasts. `open` checks favorites first, then all apps.
+`AppManager` queries `PackageManager` for all apps with `CATEGORY_LAUNCHER`. Caches the list (label, package name, launch intent, icon `Drawable`) and refreshes on package add/remove/replace broadcasts. `open` checks favorites first, then all apps.
 
 ### Persistence
 

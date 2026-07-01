@@ -34,7 +34,7 @@ class FavCommand : Command {
             }
             else -> buildList {
                 add(TerminalEntry.info("multiple matches — be more specific:"))
-                matches.take(8).forEach { add(TerminalEntry.output("  ${it.label}")) }
+                matches.take(8).forEach { add(TerminalEntry.app("  ${it.label}", it.packageName)) }
             }
         }
     }
@@ -52,7 +52,7 @@ class FavCommand : Command {
             }
             else -> buildList {
                 add(TerminalEntry.info("multiple matches — be more specific:"))
-                matches.forEach { add(TerminalEntry.output("  ${it.label}")) }
+                matches.forEach { add(TerminalEntry.app("  ${it.label}", it.packageName)) }
             }
         }
     }
@@ -63,7 +63,7 @@ class FavCommand : Command {
         return buildList {
             add(TerminalEntry.info("${favApps.size} favorite(s):"))
             favApps.sortedBy { it.label.lowercase() }
-                .forEach { add(TerminalEntry.output("  ${it.label}")) }
+                .forEach { add(TerminalEntry.app("  ${it.label}", it.packageName)) }
         }
     }
 

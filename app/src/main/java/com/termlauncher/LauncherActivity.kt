@@ -1,6 +1,9 @@
 package com.termlauncher
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings as AndroidSettings
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -41,7 +44,12 @@ class LauncherActivity : AppCompatActivity() {
         adapter = TerminalAdapter(
             theme = viewModel.currentTheme.value,
             fontSize = viewModel.currentSettings.value.fontSize,
-            uiMode = viewModel.currentSettings.value.uiMode
+            uiMode = viewModel.currentSettings.value.uiMode,
+            onLaunchApp = { packageName -> viewModel.launchApp(packageName) },
+            onAppInfo = { packageName -> openAppInfo(packageName) },
+            onToggleFavorite = { packageName -> viewModel.toggleFavorite(packageName) },
+            isFavorite = { packageName -> viewModel.isFavorite(packageName) },
+            iconFor = { packageName -> viewModel.iconFor(packageName) }
         )
         binding.terminalRecycler.apply {
             layoutManager = LinearLayoutManager(this@LauncherActivity).also {
@@ -54,6 +62,14 @@ class LauncherActivity : AppCompatActivity() {
 
     private fun applyRecyclerAnimator(mode: UiMode) {
         binding.terminalRecycler.itemAnimator = if (mode == UiMode.MODERN) DefaultItemAnimator() else null
+    }
+
+    private fun openAppInfo(packageName: String) {
+        val intent = Intent(AndroidSettings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", packageName, null)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
     }
 
     private fun setupInput() {

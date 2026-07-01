@@ -26,7 +26,7 @@ class OpenCommand : Command {
             }
             else -> buildList {
                 add(TerminalEntry.info("multiple matches for '$query':"))
-                matches.take(10).forEach { add(TerminalEntry.output("  ${it.label}")) }
+                matches.take(10).forEach { add(TerminalEntry.app("  ${it.label}", it.packageName)) }
                 if (matches.size > 10) add(TerminalEntry.info("  ...and ${matches.size - 10} more"))
                 add(TerminalEntry.info("be more specific to launch"))
             }

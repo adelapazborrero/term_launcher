@@ -15,7 +15,7 @@ class AppsListCommand : Command {
         return buildList {
             if (apps.isEmpty()) { add(TerminalEntry.info("no apps found")); return@buildList }
             add(TerminalEntry.info("${apps.size} app(s)${if (query != null) " matching '$query'" else ""}:"))
-            apps.forEach { add(TerminalEntry.output("  • ${it.label}")) }
+            apps.forEach { add(TerminalEntry.app("  • ${it.label}", it.packageName)) }
         }
     }
 }
