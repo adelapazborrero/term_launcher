@@ -84,11 +84,12 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun applySettings(panelId: Long, theme: String, uiMode: UiMode, fontSize: Float, prompt: String) {
+    fun applySettings(panelId: Long, theme: String, uiMode: UiMode, fontSize: Float, prompt: String, bgOpacity: Int) {
         themeManager.setTheme(theme)
         settingsManager.set("ui_mode", uiMode.name)
         settingsManager.set("font_size", fontSize.toInt().toString())
         settingsManager.set("prompt", prompt)
+        settingsManager.set("bg_opacity", bgOpacity.toString())
         _entries.value = _entries.value.filterNot { it.id == panelId } + TerminalEntry.output("settings saved")
     }
 

@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.termlauncher.R
@@ -26,7 +27,7 @@ class TerminalAdapter(
     private val onToggleFavorite: (String) -> Unit = {},
     private val isFavorite: (String) -> Boolean = { false },
     private val iconFor: (String) -> Drawable? = { null },
-    private val onSaveSettings: (id: Long, theme: String, uiMode: UiMode, fontSize: Float, prompt: String) -> Unit = { _, _, _, _, _ -> },
+    private val onSaveSettings: (id: Long, theme: String, uiMode: UiMode, fontSize: Float, prompt: String, bgOpacity: Int) -> Unit = { _, _, _, _, _, _ -> },
     private val onSaveAliases: (id: Long, original: List<Pair<String, String>>, updated: List<Pair<String, String>>) -> Unit = { _, _, _ -> },
     private val onClosePanel: (id: Long) -> Unit = {},
     private val onSelectTheme: (String) -> Unit = {}
@@ -50,11 +51,14 @@ class TerminalAdapter(
         val fontPlus: TextView = root.findViewById(R.id.font_plus)
         val fontValue: TextView = root.findViewById(R.id.font_value)
         val promptInput: EditText = root.findViewById(R.id.prompt_input)
+        val opacitySeek: SeekBar = root.findViewById(R.id.opacity_seek)
+        val opacityValue: TextView = root.findViewById(R.id.opacity_value)
         val cancelBtn: TextView = root.findViewById(R.id.cancel_btn)
         val saveBtn: TextView = root.findViewById(R.id.save_btn)
         var draftTheme: String = ""
         var draftMode: UiMode = UiMode.TERMINAL
         var draftFontSize: Float = 14f
+        var draftBgOpacity: Int = 100
     }
 
     class AliasPanelViewHolder(root: View) : RecyclerView.ViewHolder(root) {
@@ -239,14 +243,30 @@ class TerminalAdapter(
             holder.fontValue.textSize = fontSize * 0.95f
             holder.fontValue.setTextColor(theme.foreground)
             holder.fontValue.text = "${holder.draftFontSize.toInt()}sp"
+
+            holder.opacityValue.textSize = fontSize * 0.95f
+            holder.opacityValue.setTextColor(theme.foreground)
+            holder.opacityValue.text = "${holder.draftBgOpacity}%"
         }
 
         holder.draftTheme = snap.theme
         holder.draftMode = snap.uiMode
         holder.draftFontSize = snap.fontSize
+        holder.draftBgOpacity = snap.bgOpacity
         holder.promptInput.setText(snap.prompt)
         holder.promptInput.textSize = fontSize * 0.95f
         holder.promptInput.setTextColor(theme.foreground)
+        holder.opacitySeek.progress = snap.bgOpacity
+        holder.opacitySeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    holder.draftBgOpacity = progress
+                    holder.opacityValue.text = "$progress%"
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
         render()
 
         holder.modeTerminalBtn.setOnClickListener { holder.draftMode = UiMode.TERMINAL; render() }
@@ -268,7 +288,14 @@ class TerminalAdapter(
 
         holder.saveBtn.setTextColor(theme.prompt)
         holder.saveBtn.setOnClickListener {
-            onSaveSettings(entry.id, holder.draftTheme, holder.draftMode, holder.draftFontSize, holder.promptInput.text.toString())
+            onSaveSettings(
+                entry.id,
+                holder.draftTheme,
+                holder.draftMode,
+                holder.draftFontSize,
+                holder.promptInput.text.toString(),
+                holder.draftBgOpacity
+            )
         }
     }
 

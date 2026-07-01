@@ -33,7 +33,8 @@ class SettingsCommand : Command {
                 availableThemes = context.themeManager.getAvailableThemes(),
                 uiMode = s.uiMode,
                 fontSize = s.fontSize,
-                prompt = s.prompt
+                prompt = s.prompt,
+                bgOpacity = s.bgOpacity
             )
         )
     }
@@ -43,12 +44,13 @@ class SettingsCommand : Command {
         val theme = context.themeManager.currentTheme.value.name
         return buildList {
             add(TerminalEntry.info("current settings:"))
-            add(TerminalEntry.output("  theme      = $theme"))
-            add(TerminalEntry.output("  ui_mode    = ${s.uiMode.name.lowercase()}"))
-            add(TerminalEntry.output("  font_size  = ${s.fontSize.toInt()}sp"))
-            add(TerminalEntry.output("  prompt     = ${s.prompt}"))
+            add(TerminalEntry.output("  theme       = $theme"))
+            add(TerminalEntry.output("  ui_mode     = ${s.uiMode.name.lowercase()}"))
+            add(TerminalEntry.output("  font_size   = ${s.fontSize.toInt()}sp"))
+            add(TerminalEntry.output("  prompt      = ${s.prompt}"))
+            add(TerminalEntry.output("  bg_opacity  = ${s.bgOpacity}%"))
             add(TerminalEntry.info("use 'settings set <key> <value>' to change"))
-            add(TerminalEntry.info("keys: theme, ui_mode (terminal|modern), font_size (8-32), prompt"))
+            add(TerminalEntry.info("keys: theme, ui_mode (terminal|modern), font_size (8-32), prompt, bg_opacity (0-100)"))
         }
     }
 
@@ -71,7 +73,8 @@ class SettingsCommand : Command {
                 when (key) {
                     "font_size" -> listOf(TerminalEntry.error("font_size must be a number between 8 and 32"))
                     "ui_mode" -> listOf(TerminalEntry.error("ui_mode must be 'terminal' or 'modern'"))
-                    else -> listOf(TerminalEntry.error("unknown key '$key' — valid keys: theme, ui_mode, font_size, prompt"))
+                    "bg_opacity" -> listOf(TerminalEntry.error("bg_opacity must be a number between 0 and 100"))
+                    else -> listOf(TerminalEntry.error("unknown key '$key' — valid keys: theme, ui_mode, font_size, prompt, bg_opacity"))
                 }
             }
         }

@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings as AndroidSettings
 import android.view.KeyEvent
+import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.addCallback
@@ -29,6 +30,7 @@ class LauncherActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER)
         binding = ActivityLauncherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -50,7 +52,9 @@ class LauncherActivity : AppCompatActivity() {
             onToggleFavorite = { packageName -> viewModel.toggleFavorite(packageName) },
             isFavorite = { packageName -> viewModel.isFavorite(packageName) },
             iconFor = { packageName -> viewModel.iconFor(packageName) },
-            onSaveSettings = { id, theme, mode, fontSize, prompt -> viewModel.applySettings(id, theme, mode, fontSize, prompt) },
+            onSaveSettings = { id, theme, mode, fontSize, prompt, bgOpacity ->
+                viewModel.applySettings(id, theme, mode, fontSize, prompt, bgOpacity)
+            },
             onSaveAliases = { id, original, updated -> viewModel.applyAliases(id, original, updated) },
             onClosePanel = { id -> viewModel.closePanel(id) },
             onSelectTheme = { name -> viewModel.selectTheme(name) }
@@ -116,6 +120,7 @@ class LauncherActivity : AppCompatActivity() {
         adapter.updateUiMode(settings.uiMode)
         applyInputBarStyle(settings.uiMode)
         applyRecyclerAnimator(settings.uiMode)
+        applyRootBackground(viewModel.currentTheme.value, settings.bgOpacity)
     }
 
     private fun applyInputBarStyle(mode: UiMode) {
@@ -126,7 +131,7 @@ class LauncherActivity : AppCompatActivity() {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = 10f * dp
                 setStroke((1.5f * dp).toInt(), theme.prompt)
-                setColor(theme.background)
+                setColor(colorWithOpacity(theme.background, viewModel.currentSettings.value.bgOpacity))
             }
             binding.inputBar.background = stroke
             val hPad = (14 * dp).toInt()
@@ -139,12 +144,21 @@ class LauncherActivity : AppCompatActivity() {
     }
 
     private fun applyTheme(theme: HackerTheme) {
-        binding.rootLayout.setBackgroundColor(theme.background)
+        applyRootBackground(theme, viewModel.currentSettings.value.bgOpacity)
         binding.promptText.setTextColor(theme.prompt)
         binding.commandInput.setTextColor(theme.foreground)
         binding.commandInput.setHintTextColor(theme.hint)
         adapter.updateTheme(theme)
         applyInputBarStyle(viewModel.currentSettings.value.uiMode)
+    }
+
+    private fun applyRootBackground(theme: HackerTheme, opacityPercent: Int) {
+        binding.rootLayout.setBackgroundColor(colorWithOpacity(theme.background, opacityPercent))
+    }
+
+    private fun colorWithOpacity(color: Int, opacityPercent: Int): Int {
+        val alpha = (opacityPercent.coerceIn(0, 100) * 255) / 100
+        return (color and 0x00FFFFFF) or (alpha shl 24)
     }
 
     private fun showKeyboard() {

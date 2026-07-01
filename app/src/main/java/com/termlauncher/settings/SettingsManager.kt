@@ -26,6 +26,10 @@ class SettingsManager(context: Context) {
                     ?: return false
                 current.copy(uiMode = mode)
             }
+            "bg_opacity" -> {
+                val pct = value.toIntOrNull()?.takeIf { it in 0..100 } ?: return false
+                current.copy(bgOpacity = pct)
+            }
             else -> return false
         }
         save(updated)
@@ -44,6 +48,7 @@ class SettingsManager(context: Context) {
             .putFloat("font_size", s.fontSize)
             .putString("prompt", s.prompt)
             .putString("ui_mode", s.uiMode.name)
+            .putInt("bg_opacity", s.bgOpacity)
             .apply()
     }
 
@@ -51,6 +56,7 @@ class SettingsManager(context: Context) {
         fontSize = prefs.getFloat("font_size", 14f),
         prompt = prefs.getString("prompt", "root@hackr:~$ ") ?: "root@hackr:~$ ",
         uiMode = prefs.getString("ui_mode", "TERMINAL")
-            ?.let { name -> UiMode.entries.find { it.name == name } } ?: UiMode.TERMINAL
+            ?.let { name -> UiMode.entries.find { it.name == name } } ?: UiMode.TERMINAL,
+        bgOpacity = prefs.getInt("bg_opacity", 100)
     )
 }

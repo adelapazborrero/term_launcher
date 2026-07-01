@@ -41,7 +41,8 @@ data class SettingsSnapshot(
     val availableThemes: List<String>,
     val uiMode: UiMode,
     val fontSize: Float,
-    val prompt: String
+    val prompt: String,
+    val bgOpacity: Int
 )
 
 data class AliasSnapshot(

@@ -119,7 +119,7 @@ All user data is stored in SharedPreferences and survives app restarts:
 | Store | File | Contents |
 |---|---|---|
 | `ThemeManager` | `"theme"` | Active theme name |
-| `SettingsManager` | `"app_settings"` | font_size, prompt, ui_mode |
+| `SettingsManager` | `"app_settings"` | font_size, prompt, ui_mode, bg_opacity |
 | `FavoritesManager` | `"favorites"` | Favorite package names |
 | `FolderManager` | `"app_folders"` | Folder names + memberships |
 | `AliasManager` | `"aliases"` | Alias name → expansion |
@@ -182,6 +182,7 @@ Every command supports `-h` for inline help (handled globally in `CommandProcess
 | `ui_mode` | terminal, modern | terminal |
 | `font_size` | 8–32 (sp) | 14 |
 | `prompt` | any string | `root@hackr:~$ ` |
+| `bg_opacity` | 0–100 (%) | 100 |
 
 ## Adding a New Command
 
@@ -196,3 +197,4 @@ Every command supports `-h` for inline help (handled globally in `CommandProcess
 - `windowSoftInputMode="adjustResize"` keeps keyboard visible; layout shrinks instead
 - `QUERY_ALL_PACKAGES` + `<queries>` in manifest required on Android 11+ for full app list
 - Use `commit()` not `apply()` in `FolderManager` — `apply()` async writes caused assignment data loss on restart
+- Home-screen wallpaper visibility (`bg_opacity` setting): `Theme.TermLauncher` sets `android:windowBackground` to transparent and `android:windowShowWallpaper` to true, and `LauncherActivity.onCreate()` adds `WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER`. `rootLayout`'s background color alpha channel (and the modern input bar's fill) are derived from `theme.background` + `settings.bgOpacity` via `colorWithOpacity()` — at 100% it looks identical to before this existed
