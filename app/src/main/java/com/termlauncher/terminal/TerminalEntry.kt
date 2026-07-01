@@ -10,9 +10,10 @@ data class TerminalEntry(
     val success: Boolean = true,
     val packageName: String? = null,
     val settingsSnapshot: SettingsSnapshot? = null,
+    val aliasSnapshot: AliasSnapshot? = null,
     val id: Long = nextId()
 ) {
-    enum class Type { INPUT, OUTPUT, ERROR, INFO, DIVIDER, SETTINGS_PANEL }
+    enum class Type { INPUT, OUTPUT, ERROR, INFO, DIVIDER, SETTINGS_PANEL, ALIAS_PANEL }
 
     companion object {
         private val idCounter = AtomicLong(0)
@@ -27,6 +28,8 @@ data class TerminalEntry(
         fun app(text: String, packageName: String) = TerminalEntry(text, Type.OUTPUT, packageName = packageName)
         fun settingsPanel(snapshot: SettingsSnapshot) =
             TerminalEntry("⚙ settings", Type.SETTINGS_PANEL, settingsSnapshot = snapshot)
+        fun aliasPanel(snapshot: AliasSnapshot) =
+            TerminalEntry("⌘ alias", Type.ALIAS_PANEL, aliasSnapshot = snapshot)
     }
 }
 
@@ -36,4 +39,8 @@ data class SettingsSnapshot(
     val uiMode: UiMode,
     val fontSize: Float,
     val prompt: String
+)
+
+data class AliasSnapshot(
+    val aliases: List<Pair<String, String>>
 )

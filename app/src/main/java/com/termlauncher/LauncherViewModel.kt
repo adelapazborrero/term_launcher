@@ -92,6 +92,17 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         _entries.value = _entries.value.filterNot { it.id == panelId } + TerminalEntry.output("settings saved")
     }
 
+    fun applyAliases(panelId: Long, original: List<Pair<String, String>>, updated: List<Pair<String, String>>) {
+        val updatedNames = updated.map { it.first }.toSet()
+        original.forEach { (name, _) -> if (name !in updatedNames) aliasManager.remove(name) }
+        updated.forEach { (name, expansion) -> aliasManager.set(name, expansion) }
+        _entries.value = _entries.value.filterNot { it.id == panelId } + TerminalEntry.output("aliases updated")
+    }
+
+    fun closePanel(panelId: Long) {
+        _entries.value = _entries.value.filterNot { it.id == panelId }
+    }
+
     private fun currentTime(): String {
         val c = Calendar.getInstance()
         return "%02d:%02d".format(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE))

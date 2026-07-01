@@ -26,7 +26,9 @@ class TerminalAdapter(
     private val onToggleFavorite: (String) -> Unit = {},
     private val isFavorite: (String) -> Boolean = { false },
     private val iconFor: (String) -> Drawable? = { null },
-    private val onSaveSettings: (id: Long, theme: String, uiMode: UiMode, fontSize: Float, prompt: String) -> Unit = { _, _, _, _, _ -> }
+    private val onSaveSettings: (id: Long, theme: String, uiMode: UiMode, fontSize: Float, prompt: String) -> Unit = { _, _, _, _, _ -> },
+    private val onSaveAliases: (id: Long, original: List<Pair<String, String>>, updated: List<Pair<String, String>>) -> Unit = { _, _, _ -> },
+    private val onClosePanel: (id: Long) -> Unit = {}
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     class TextViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
@@ -54,6 +56,17 @@ class TerminalAdapter(
         var draftFontSize: Float = 14f
     }
 
+    class AliasPanelViewHolder(root: View) : RecyclerView.ViewHolder(root) {
+        val rowsContainer: LinearLayout = root.findViewById(R.id.alias_rows_container)
+        val emptyState: TextView = root.findViewById(R.id.empty_state)
+        val newNameInput: EditText = root.findViewById(R.id.new_name_input)
+        val newCmdInput: EditText = root.findViewById(R.id.new_cmd_input)
+        val addBtn: TextView = root.findViewById(R.id.add_btn)
+        val cancelBtn: TextView = root.findViewById(R.id.cancel_btn)
+        val saveBtn: TextView = root.findViewById(R.id.save_btn)
+        var draft: MutableList<Pair<String, String>> = mutableListOf()
+    }
+
     class AppEntryViewHolder(root: View) : RecyclerView.ViewHolder(root) {
         val icon: ImageView = root.findViewById(R.id.app_icon)
         val label: TextView = root.findViewById(R.id.app_label)
@@ -68,6 +81,7 @@ class TerminalAdapter(
             entry.type == TerminalEntry.Type.DIVIDER -> VIEW_DIVIDER
             entry.type == TerminalEntry.Type.INPUT && uiMode == UiMode.MODERN -> VIEW_INPUT_MODERN
             entry.type == TerminalEntry.Type.SETTINGS_PANEL && uiMode == UiMode.MODERN -> VIEW_SETTINGS_PANEL
+            entry.type == TerminalEntry.Type.ALIAS_PANEL && uiMode == UiMode.MODERN -> VIEW_ALIAS_PANEL
             entry.packageName != null && uiMode == UiMode.MODERN -> VIEW_APP_ENTRY_MODERN
             else -> VIEW_TEXT
         }
@@ -88,6 +102,9 @@ class TerminalAdapter(
             VIEW_SETTINGS_PANEL -> SettingsPanelViewHolder(
                 inflater.inflate(R.layout.item_settings_panel_modern, parent, false)
             )
+            VIEW_ALIAS_PANEL -> AliasPanelViewHolder(
+                inflater.inflate(R.layout.item_alias_panel_modern, parent, false)
+            )
             else -> TextViewHolder(
                 inflater.inflate(R.layout.item_terminal_entry, parent, false) as TextView
             )
@@ -102,6 +119,7 @@ class TerminalAdapter(
             is DividerViewHolder -> holder.view.setBackgroundColor(theme.foreground)
             is AppEntryViewHolder -> bindAppEntry(holder, entry)
             is SettingsPanelViewHolder -> bindSettingsPanel(holder, entry)
+            is AliasPanelViewHolder -> bindAliasPanel(holder, entry)
         }
     }
 
@@ -236,17 +254,86 @@ class TerminalAdapter(
         }
 
         holder.cancelBtn.setTextColor(theme.hint)
-        holder.cancelBtn.setOnClickListener {
-            holder.draftTheme = snap.theme
-            holder.draftMode = snap.uiMode
-            holder.draftFontSize = snap.fontSize
-            holder.promptInput.setText(snap.prompt)
-            render()
-        }
+        holder.cancelBtn.setOnClickListener { onClosePanel(entry.id) }
 
         holder.saveBtn.setTextColor(theme.prompt)
         holder.saveBtn.setOnClickListener {
             onSaveSettings(entry.id, holder.draftTheme, holder.draftMode, holder.draftFontSize, holder.promptInput.text.toString())
+        }
+    }
+
+    private fun bindAliasPanel(holder: AliasPanelViewHolder, entry: TerminalEntry) {
+        val snap = entry.aliasSnapshot ?: return
+        val dp = holder.itemView.resources.displayMetrics.density
+        holder.itemView.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 10f * dp
+            setStroke((1.5f * dp).toInt(), theme.prompt)
+            setColor(theme.background)
+        }
+
+        fun render() {
+            holder.rowsContainer.removeAllViews()
+            holder.emptyState.visibility = if (holder.draft.isEmpty()) View.VISIBLE else View.GONE
+            holder.emptyState.setTextColor(theme.hint)
+            holder.draft.forEach { (name, expansion) ->
+                val row = LinearLayout(holder.itemView.context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                    setPadding(0, (2 * dp).toInt(), 0, (2 * dp).toInt())
+                }
+                val label = TextView(holder.itemView.context).apply {
+                    text = "$name → $expansion"
+                    textSize = fontSize * 0.9f
+                    setTextColor(theme.foreground)
+                    maxLines = 1
+                    ellipsize = android.text.TextUtils.TruncateAt.END
+                }
+                val labelLp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                row.addView(label, labelLp)
+
+                val remove = TextView(holder.itemView.context).apply {
+                    text = "✕"
+                    textSize = fontSize * 0.9f
+                    setTextColor(theme.error)
+                    setPadding((10 * dp).toInt(), 0, 0, 0)
+                    setOnClickListener {
+                        holder.draft.removeAll { it.first == name }
+                        render()
+                    }
+                }
+                row.addView(remove)
+                holder.rowsContainer.addView(row)
+            }
+        }
+
+        holder.draft = snap.aliases.toMutableList()
+        holder.newNameInput.setText("")
+        holder.newCmdInput.setText("")
+        holder.newNameInput.textSize = fontSize * 0.9f
+        holder.newCmdInput.textSize = fontSize * 0.9f
+        holder.newNameInput.setTextColor(theme.foreground)
+        holder.newCmdInput.setTextColor(theme.foreground)
+        render()
+
+        holder.addBtn.setOnClickListener {
+            val name = holder.newNameInput.text.toString().trim().lowercase()
+            val cmd = holder.newCmdInput.text.toString().trim()
+            if (name.isNotEmpty() && cmd.isNotEmpty()) {
+                holder.draft.removeAll { it.first == name }
+                holder.draft.add(name to cmd)
+                holder.newNameInput.setText("")
+                holder.newCmdInput.setText("")
+                render()
+            }
+        }
+
+        holder.cancelBtn.setTextColor(theme.hint)
+        holder.cancelBtn.setOnClickListener { onClosePanel(entry.id) }
+
+        holder.saveBtn.setTextColor(theme.prompt)
+        holder.saveBtn.setOnClickListener {
+            onSaveAliases(entry.id, snap.aliases, holder.draft.toList())
         }
     }
 
@@ -257,6 +344,7 @@ class TerminalAdapter(
         TerminalEntry.Type.INFO -> theme.info
         TerminalEntry.Type.DIVIDER -> theme.foreground
         TerminalEntry.Type.SETTINGS_PANEL -> theme.foreground
+        TerminalEntry.Type.ALIAS_PANEL -> theme.foreground
     }
 
     override fun getItemCount() = entries.size
@@ -292,5 +380,6 @@ class TerminalAdapter(
         private const val VIEW_DIVIDER = 2
         private const val VIEW_APP_ENTRY_MODERN = 3
         private const val VIEW_SETTINGS_PANEL = 4
+        private const val VIEW_ALIAS_PANEL = 5
     }
 }

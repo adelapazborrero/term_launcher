@@ -50,7 +50,9 @@ class LauncherActivity : AppCompatActivity() {
             onToggleFavorite = { packageName -> viewModel.toggleFavorite(packageName) },
             isFavorite = { packageName -> viewModel.isFavorite(packageName) },
             iconFor = { packageName -> viewModel.iconFor(packageName) },
-            onSaveSettings = { id, theme, mode, fontSize, prompt -> viewModel.applySettings(id, theme, mode, fontSize, prompt) }
+            onSaveSettings = { id, theme, mode, fontSize, prompt -> viewModel.applySettings(id, theme, mode, fontSize, prompt) },
+            onSaveAliases = { id, original, updated -> viewModel.applyAliases(id, original, updated) },
+            onClosePanel = { id -> viewModel.closePanel(id) }
         )
         binding.terminalRecycler.apply {
             layoutManager = LinearLayoutManager(this@LauncherActivity).also {
