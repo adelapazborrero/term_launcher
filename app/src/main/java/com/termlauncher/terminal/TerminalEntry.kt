@@ -9,6 +9,7 @@ data class TerminalEntry(
     val timestamp: String? = null,
     val success: Boolean = true,
     val packageName: String? = null,
+    val folderName: String? = null,
     val settingsSnapshot: SettingsSnapshot? = null,
     val aliasSnapshot: AliasSnapshot? = null,
     val themeSnapshot: ThemeSnapshot? = null,
@@ -27,6 +28,7 @@ data class TerminalEntry(
             TerminalEntry(text, Type.INPUT, timestamp, success)
         fun divider() = TerminalEntry("", Type.DIVIDER)
         fun app(text: String, packageName: String) = TerminalEntry(text, Type.OUTPUT, packageName = packageName)
+        fun folder(text: String, folderName: String) = TerminalEntry(text, Type.OUTPUT, folderName = folderName)
         fun settingsPanel(snapshot: SettingsSnapshot) =
             TerminalEntry("⚙ settings", Type.SETTINGS_PANEL, settingsSnapshot = snapshot)
         fun aliasPanel(snapshot: AliasSnapshot) =

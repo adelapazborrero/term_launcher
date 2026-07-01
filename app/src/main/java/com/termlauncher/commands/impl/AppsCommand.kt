@@ -23,8 +23,8 @@ class AppsCommand : Command {
     private fun listRoot(context: CommandContext): List<TerminalEntry> = buildList {
         val folders = context.folderManager.getFolders()
         add(TerminalEntry.info("folders:"))
-        add(TerminalEntry.output("  [apps]"))
-        folders.forEach { add(TerminalEntry.output("  [$it]")) }
+        add(TerminalEntry.folder("  [apps]", "apps"))
+        folders.forEach { add(TerminalEntry.folder("  [$it]", it)) }
         add(TerminalEntry.info("use 'ls <folder>' or 'cd <folder>' to explore"))
     }
 

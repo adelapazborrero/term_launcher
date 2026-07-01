@@ -76,6 +76,11 @@ class TerminalAdapter(
         val themeContainer: LinearLayout = root.findViewById(R.id.theme_chip_container)
     }
 
+    class FolderEntryViewHolder(root: View) : RecyclerView.ViewHolder(root) {
+        val icon: TextView = root.findViewById(R.id.folder_icon)
+        val label: TextView = root.findViewById(R.id.folder_label)
+    }
+
     class AppEntryViewHolder(root: View) : RecyclerView.ViewHolder(root) {
         val icon: ImageView = root.findViewById(R.id.app_icon)
         val label: TextView = root.findViewById(R.id.app_label)
@@ -93,6 +98,7 @@ class TerminalAdapter(
             entry.type == TerminalEntry.Type.ALIAS_PANEL && uiMode == UiMode.MODERN -> VIEW_ALIAS_PANEL
             entry.type == TerminalEntry.Type.THEME_PANEL && uiMode == UiMode.MODERN -> VIEW_THEME_PANEL
             entry.packageName != null && uiMode == UiMode.MODERN -> VIEW_APP_ENTRY_MODERN
+            entry.folderName != null && uiMode == UiMode.MODERN -> VIEW_FOLDER_ENTRY_MODERN
             else -> VIEW_TEXT
         }
     }
@@ -118,6 +124,9 @@ class TerminalAdapter(
             VIEW_THEME_PANEL -> ThemePanelViewHolder(
                 inflater.inflate(R.layout.item_theme_panel_modern, parent, false)
             )
+            VIEW_FOLDER_ENTRY_MODERN -> FolderEntryViewHolder(
+                inflater.inflate(R.layout.item_folder_entry_modern, parent, false)
+            )
             else -> TextViewHolder(
                 inflater.inflate(R.layout.item_terminal_entry, parent, false) as TextView
             )
@@ -134,6 +143,7 @@ class TerminalAdapter(
             is SettingsPanelViewHolder -> bindSettingsPanel(holder, entry)
             is AliasPanelViewHolder -> bindAliasPanel(holder, entry)
             is ThemePanelViewHolder -> bindThemePanel(holder, entry)
+            is FolderEntryViewHolder -> bindFolderEntry(holder, entry)
         }
     }
 
@@ -410,6 +420,13 @@ class TerminalAdapter(
         }
     }
 
+    private fun bindFolderEntry(holder: FolderEntryViewHolder, entry: TerminalEntry) {
+        holder.icon.textSize = fontSize
+        holder.label.textSize = fontSize
+        holder.label.text = entry.text.trim().removePrefix("[").removeSuffix("]")
+        holder.label.setTextColor(theme.foreground)
+    }
+
     private fun colorFor(entry: TerminalEntry) = when (entry.type) {
         TerminalEntry.Type.INPUT -> theme.prompt
         TerminalEntry.Type.OUTPUT -> theme.foreground
@@ -456,5 +473,6 @@ class TerminalAdapter(
         private const val VIEW_SETTINGS_PANEL = 4
         private const val VIEW_ALIAS_PANEL = 5
         private const val VIEW_THEME_PANEL = 6
+        private const val VIEW_FOLDER_ENTRY_MODERN = 7
     }
 }
