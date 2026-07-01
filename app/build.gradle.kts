@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.hackerlauncher"
+    namespace = "com.termlauncher"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.hackerlauncher"
+        applicationId = "com.termlauncher"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

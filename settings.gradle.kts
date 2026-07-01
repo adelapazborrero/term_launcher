@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "HackerLauncher"
+rootProject.name = "TermLauncher"
 include(":app")

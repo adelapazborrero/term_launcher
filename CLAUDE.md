@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-HackerLauncher is an Android home screen replacement (launcher) with a terminal/hacker aesthetic. Users interact entirely through a command prompt — no icons, no widgets. The input bar is always pinned at the bottom; output scrolls upward like a terminal session.
+TermLauncher is an Android home screen replacement (launcher) with a terminal/hacker aesthetic. Users interact entirely through a command prompt — no icons, no widgets. The input bar is always pinned at the bottom; output scrolls upward like a terminal session.
 
 The app supports two UI modes switchable at runtime: **terminal** (pure text) and **modern** (rounded input border, color-coded status indicators, timestamps, command dividers).
 
@@ -34,7 +34,7 @@ Since `installDebug` is blocked on this device, the deploy workflow is:
 $adb -s 192.168.2.81:43235 push app\build\outputs\apk\debug\app-debug.apk /sdcard/Download/app-debug.apk
 # user installs from Downloads in file manager
 # then launch:
-$adb -s 192.168.2.81:43235 shell am start -n com.hackerlauncher/.LauncherActivity
+$adb -s 192.168.2.81:43235 shell am start -n com.termlauncher/.LauncherActivity
 ```
 
 Requires Android SDK installed and `ANDROID_HOME` set (or `local.properties` with `sdk.dir`). `adb` is not on PATH — use the full path: `$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe`.
@@ -56,13 +56,13 @@ Device IP: `192.168.2.81`. After connecting, push the APK and install from the p
 
 ### Entry Point & Home Screen Registration
 
-`LauncherActivity` is the single Activity. `AndroidManifest.xml` declares it with `CATEGORY_HOME` + `CATEGORY_DEFAULT` so Android offers it as a launcher. Also declares `QUERY_ALL_PACKAGES` permission and `<queries>` intent filter — required on Android 11+ for `PackageManager` to return all installed apps.
+`LauncherActivity` is the single Activity. `AndroidManifest.xml` declares it with two intent filters on the same activity: `CATEGORY_HOME` + `CATEGORY_DEFAULT` (so Android offers it as a launcher choice) and a separate `CATEGORY_LAUNCHER` filter (so it also shows up as a regular app icon in the app drawer of whichever launcher is active). Also declares `QUERY_ALL_PACKAGES` permission and `<queries>` intent filter — required on Android 11+ for `PackageManager` to return all installed apps.
 
 ### Terminal UI Model
 
 The screen is split into two parts:
 - **Output area** (`RecyclerView`): scrollable list of `TerminalEntry` items. New entries append at the bottom; the list auto-scrolls. `TerminalAdapter` uses three view types depending on the active UI mode.
-- **Input bar** (pinned `LinearLayout` at bottom): prompt `TextView` + command `EditText`. A thin divider `View` sits above it (visible only in modern mode).
+- **Input bar** (pinned `LinearLayout` at bottom): prompt `TextView` + command `EditText`.
 
 `TerminalEntry` carries: `text`, `type` (INPUT/OUTPUT/ERROR/INFO/DIVIDER), `timestamp` (set in modern mode), `success` (true/false for INPUT entries, drives indicator color).
 
@@ -74,7 +74,6 @@ Controlled by `settings set ui_mode terminal|modern`. The Activity collects `cur
 
 **Modern mode**:
 - Input bar gets a rounded rectangle border (10dp corners) in the theme's prompt color
-- A thin horizontal divider line appears above the input bar
 - INPUT entries render with a `◎` indicator (green = `theme.foreground`, red = `theme.error`), command text, and `HH:mm` timestamp right-aligned
 - A faint divider line is appended after each command block
 

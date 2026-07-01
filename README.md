@@ -1,4 +1,4 @@
-# HackerLauncher
+# TermLauncher
 
 A home screen replacement for Android with a terminal aesthetic. No icons, no widgets — just a command prompt. Every interaction happens through typed commands, giving your phone the feel of a hacker's workstation.
 
@@ -23,12 +23,12 @@ A home screen replacement for Android with a terminal aesthetic. No icons, no wi
 
 ## Installation
 
-HackerLauncher is a debug/sideload build — not yet on the Play Store.
+TermLauncher is a debug/sideload build — not yet on the Play Store.
 
 1. Download the latest `app-debug.apk` from the [Releases](#) page
 2. On your Android device, enable **Install unknown apps** for your file manager
 3. Open the APK and tap **Install**
-4. Press the **Home button** — Android will ask which launcher to use; choose **HackerLauncher**
+4. Press the **Home button** — Android will ask which launcher to use; choose **TermLauncher**
 
 > Requires Android 11 or later.
 
@@ -36,7 +36,7 @@ HackerLauncher is a debug/sideload build — not yet on the Play Store.
 
 ## Getting Started
 
-When you first open HackerLauncher, type `help` to see available commands. Try a few:
+When you first open TermLauncher, type `help` to see available commands. Try a few:
 
 ```
 help              — list all commands
@@ -149,8 +149,8 @@ All colors follow the active theme — switching themes updates everything inclu
 ## Building from Source
 
 ```bash
-git clone https://github.com/yourname/HackerLauncher
-cd HackerLauncher
+git clone https://github.com/yourname/TermLauncher
+cd TermLauncher
 ./gradlew assembleDebug
 # APK output: app/build/outputs/apk/debug/app-debug.apk
 ```
