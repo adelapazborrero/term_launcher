@@ -6,6 +6,7 @@ import com.termlauncher.commands.impl.AppsListCommand
 import com.termlauncher.commands.impl.CdCommand
 import com.termlauncher.commands.impl.ClearCommand
 import com.termlauncher.commands.impl.FavCommand
+import com.termlauncher.commands.impl.FindCommand
 import com.termlauncher.commands.impl.HelpCommand
 import com.termlauncher.commands.impl.InfoCommand
 import com.termlauncher.commands.impl.MkdirCommand
@@ -29,6 +30,7 @@ object CommandRegistry {
         put("start", open)
         put("ls", apps)
         put("apps", AppsListCommand())
+        put("find", FindCommand())
         put("fav", fav)
         put("alias", alias)
         put("mkdir", MkdirCommand())

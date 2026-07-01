@@ -153,6 +153,7 @@ Every command supports `-h` for inline help (handled globally in `CommandProcess
 |---|---|
 | `open <name>` / `launch <name>` | Fuzzy-match and launch an app; checks favorites first |
 | `apps [-f <filter>]` | List all installed apps; `-f` filters by name |
+| `find <name>` | Search installed apps by name (same as `apps -f <name>`) |
 | `ls [folder]` | List folders at root, or contents of a folder |
 | `cd <folder\|..>` | Enter a folder or return to root; supports `cd apps` |
 | `mkdir <name>` | Create an app folder (`apps` is reserved) |
