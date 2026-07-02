@@ -6,11 +6,11 @@ No icon grid. No widgets. No app drawer to swipe through. You unlock your phone,
 
 <p align="center">
   <img src="screenshots/modern-home.png" width="200" alt="Modern mode home screen">
-  <img src="screenshots/modern-apps.png" width="200" alt="Modern mode app list">
+  <img src="screenshots/modern-apps.png" width="200" alt="Modern mode aliases, folders, and favorites">
   <img src="screenshots/modern-settings.png" width="200" alt="Modern mode settings panel">
   <img src="screenshots/terminal-apps.png" width="200" alt="Terminal mode app list">
 </p>
-<p align="center"><i>Modern mode (default) — home screen, app cards, and the interactive settings panel — next to terminal mode's plain-text look.</i></p>
+<p align="center"><i>Modern mode (default) — home screen, aliases/folders/favorites, and the interactive settings panel — next to terminal mode's plain-text look.</i></p>
 
 ---
 
