@@ -5,10 +5,11 @@ name: Release
 # builds the release APK, and publishes a GitHub Release with it.
 #
 # Bump rules (highest precedence wins):
-#   <type>!: ...  or a "BREAKING CHANGE:" footer  -> major
-#   feat: ...                                     -> minor
-#   fix: ...                                      -> patch
-#   anything else (chore, docs, refactor, ...)    -> no release
+#   no tag exists yet                             -> v1.0.0 (initial release)
+#   <type>!: ...  or a "BREAKING CHANGE:" footer   -> major
+#   feat: ...                                      -> minor
+#   fix: ...                                       -> patch
+#   anything else (chore, docs, refactor, ...)     -> no release
 #
 # See CLAUDE.md for the commit message convention this depends on.
 
@@ -35,8 +36,13 @@ jobs:
           set -e
           LATEST_TAG=$(git tag -l 'v*' --sort=-v:refname | head -n1)
           if [ -z "$LATEST_TAG" ]; then
-            echo "No existing tag found — nothing to bump from. Skipping." >&2
-            echo "bump=" >> "$GITHUB_OUTPUT"
+            echo "No existing tag — cutting the initial v1.0.0 release."
+            echo "bump=initial" >> "$GITHUB_OUTPUT"
+            {
+              echo "changelog<<EOF"
+              echo "Initial release"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -71,6 +77,12 @@ jobs:
         if: steps.bump.outputs.bump != ''
         run: |
           set -e
+          if [ "${{ steps.bump.outputs.bump }}" = "initial" ]; then
+            echo "new_version=1.0.0" >> "$GITHUB_OUTPUT"
+            echo "new_tag=v1.0.0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           VERSION="${{ steps.bump.outputs.latest_tag }}"
           VERSION="${VERSION#v}"
           MAJOR=$(echo "$VERSION" | cut -d. -f1)
