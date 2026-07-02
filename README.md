@@ -11,6 +11,7 @@ No icon grid. No widgets. No app drawer to swipe through. You unlock your phone,
   <img src="screenshots/terminal-apps.png" width="200" alt="Terminal mode aliases, folders, favorites, and settings">
 </p>
 <p align="center"><i>Modern mode (default) — home screen, aliases/folders/favorites, and the interactive settings panel — next to terminal mode's plain-text look.</i></p>
+<p align="center"><i>Screenshots use the <code>ice</code> theme at 68% <code>bg_opacity</code>, so the home screen wallpaper shows through.</i></p>
 
 ---
 
