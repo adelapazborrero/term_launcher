@@ -55,8 +55,8 @@ class SettingsManager(context: Context) {
     private fun load() = Settings(
         fontSize = prefs.getFloat("font_size", 14f),
         prompt = prefs.getString("prompt", "root@hackr:~$ ") ?: "root@hackr:~$ ",
-        uiMode = prefs.getString("ui_mode", "TERMINAL")
-            ?.let { name -> UiMode.entries.find { it.name == name } } ?: UiMode.TERMINAL,
+        uiMode = prefs.getString("ui_mode", "MODERN")
+            ?.let { name -> UiMode.entries.find { it.name == name } } ?: UiMode.MODERN,
         bgOpacity = prefs.getInt("bg_opacity", 100)
     )
 }

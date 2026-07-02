@@ -1,51 +1,60 @@
 # TermLauncher
 
-A home screen replacement for Android with a terminal aesthetic. No icons, no widgets — just a command prompt. Every interaction happens through typed commands, giving your phone the feel of a hacker's workstation.
+Your Android home screen, reimagined as a command line.
 
-## Screenshots
+No icon grid. No widgets. No app drawer to swipe through. You unlock your phone, a prompt is waiting for you, and you type what you want — `open spotify`, `ls music`, `fav add camera`. That's the whole interface.
 
-*Coming soon*
+<p align="center"><i>Screenshots coming soon</i></p>
 
 ---
 
-## Features
+## What it feels like
 
-- **Pure terminal interface** — input bar always pinned at the bottom, output scrolls up like a real terminal session
-- **Two UI modes** — classic full-terminal or a modernized look with status indicators, timestamps, and a clean input border
-- **App folders** — organize apps into named folders, navigate them with `ls`, `cd`, and `mv` just like a filesystem
-- **Favorites** — pin your most-used apps so `open` finds them first
-- **Aliases** — map short commands to longer ones (`alias br "open brave"`)
-- **Persistent settings** — theme, font size, prompt string, and UI mode all survive restarts
-- **8 built-in themes** — matrix, blood, ice, amber, ghost, ubuntu, dracula, frappe
-- **Fully customizable prompt** — change the prompt string to anything you like
+Everything you'd expect from a home screen is still here — it's just faster to get to, and it looks like a hacker's terminal while you do it:
+
+- **Launch apps by typing their name** — `open spotify` fuzzy-matches, so you don't need to spell it exactly
+- **Organize apps into folders** you navigate like a filesystem — `ls`, `cd music`, `mv apps/Spotify music/`
+- **Favorite your most-used apps** so they're matched first
+- **Create shortcuts (aliases)** for anything — `alias br "open brave"` and `br` launches Brave from then on
+- **8 built-in color themes** — matrix, blood, ice, amber, ghost, ubuntu, dracula, frappe — plus a customizable prompt string
+- **Two looks, your choice** — a clean **modern** interface by default, or a stripped-down **terminal** mode for purists (more on this below)
+
+Everything you set up — theme, folders, favorites, aliases, font size — is saved and survives restarts.
 
 ---
 
 ## Installation
 
-TermLauncher is a debug/sideload build — not yet on the Play Store.
+TermLauncher is a sideload build — not yet on the Play Store.
 
-1. Download the latest `app-debug.apk` from the [Releases](#) page
+1. Download the latest `app-debug.apk` from the [Releases](https://github.com/adelapazborrero/term_launcher/releases) page
 2. On your Android device, enable **Install unknown apps** for your file manager
 3. Open the APK and tap **Install**
 4. Press the **Home button** — Android will ask which launcher to use; choose **TermLauncher**
 
-> Requires Android 11 or later.
+> Requires Android 8.0 (API 26) or later.
 
 ---
 
 ## Getting Started
 
-When you first open TermLauncher, type `help` to see available commands. Try a few:
+The first time you open TermLauncher, type `help` to see what's available. A few to try right away:
 
 ```
 help              — list all commands
 apps              — show all installed apps
 open spotify      — launch Spotify (partial name match works)
 themes            — list available themes
-settings set theme blood
-settings set ui_mode modern
+settings set theme dracula
 ```
+
+By default you're in **modern mode** — rounded input bar, colored status dots, timestamps, and tappable app cards. If you'd rather have a bare, distraction-free prompt with nothing but text, that's **terminal mode**, built for people who want the launcher to disappear into pure keyboard-driven muscle memory:
+
+```
+settings set ui_mode terminal
+```
+
+You can switch back any time with `settings set ui_mode modern`, or open `settings` as an interactive panel in modern mode to flip it with a tap.
 
 ---
 
@@ -60,6 +69,7 @@ Every command supports `-h` for quick usage info (e.g. `mv -h`).
 | `open <name>` | Launch an app by name — partial match works |
 | `apps` | List all installed apps |
 | `apps -f <query>` | Filter the app list by name |
+| `find <name>` | Search installed apps (same as `apps -f`) |
 
 ### Folders
 
@@ -102,10 +112,11 @@ Quotes are required when the expansion contains spaces.
 ```
 settings list                        — show all current settings
 settings set theme <name>            — switch theme
-settings set ui_mode terminal        — classic terminal look
-settings set ui_mode modern          — modern look with indicators + timestamps
+settings set ui_mode modern          — modern look with indicators + timestamps (default)
+settings set ui_mode terminal        — bare, classic terminal look
 settings set font_size 16            — text size in sp (8–32)
 settings set prompt "hack@r:~$ "     — custom prompt string
+settings set bg_opacity 80           — let your wallpaper show through (0–100)
 settings reset                       — restore all defaults
 ```
 
@@ -118,6 +129,9 @@ settings reset                       — restore all defaults
 | `ice` | Dark blue background, light blue text |
 | `amber` | Dark background, amber/orange text |
 | `ghost` | Near-black background, white/grey text |
+| `ubuntu` | Aubergine background, Ubuntu-orange accents |
+| `dracula` | The classic Dracula editor palette |
+| `frappe` | Catppuccin Frappé — soft pastel-on-slate |
 
 ### Other
 
@@ -133,32 +147,69 @@ settings reset                       — restore all defaults
 
 ## UI Modes
 
-**Terminal mode** (default) — plain monospace text, `$` prefix on commands, no decorations. Pure and minimal.
-
-**Modern mode** (`settings set ui_mode modern`) — the same command-driven interface with a few visual upgrades:
+**Modern mode** (default) — the same command-driven interface with visual upgrades:
 - Rounded border on the input bar
-- A thin separator line above the input area
-- `◎` status indicator per command: theme color on success, error color on failure
-- Timestamp (`HH:mm`) shown on the right of each command
-- Faint divider between command blocks
+- App results (from `apps`, `ls`, `fav list`, etc.) render as cards with icon, name, and tap-to-launch/info/favorite buttons
+- `settings` and `alias` open as interactive panels instead of plain text
 
-All colors follow the active theme — switching themes updates everything including the indicators.
+**Terminal mode** — for hardcore users who want zero chrome: plain monospace text, `$` prefix on commands, no cards, no panels, no decorations. Everything above still works, it's just printed as text.
+
+All colors follow the active theme in both modes — switching themes updates everything, indicators included.
 
 ---
 
-## Building from Source
+## For Developers
+
+Contributions are welcome. TermLauncher is a small, single-Activity Kotlin app with no external backend — it's a good project to hack on.
+
+### Building from source
 
 ```bash
-git clone https://github.com/yourname/TermLauncher
-cd TermLauncher
+git clone https://github.com/adelapazborrero/term_launcher
+cd term_launcher
 ./gradlew assembleDebug
 # APK output: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Requires Android Studio or the Android SDK with `ANDROID_HOME` set. Targets Android 11+ (API 30).
+Requires Android Studio or the Android SDK with `ANDROID_HOME` set (or a `local.properties` with `sdk.dir`). Targets Android 8.0+ (API 26), compiled against API 35.
+
+Other useful tasks:
+
+```bash
+./gradlew installDebug          # build + install on a connected device
+./gradlew test                  # unit tests
+./gradlew connectedAndroidTest  # instrumented tests on a device
+./gradlew lint                  # lint checks
+```
+
+### Architecture at a glance
+
+- **`LauncherActivity`** — the single Activity; hosts the output `RecyclerView` and the pinned input bar
+- **`LauncherViewModel`** — owns all managers (apps, favorites, folders, aliases, settings, theme) and session state
+- **`commands/`** — `CommandProcessor` tokenizes input and resolves aliases; `CommandRegistry` maps command names to `Command` implementations in `commands/impl/`
+- **`apps/`** — `AppManager` wraps `PackageManager`; `FavoritesManager` and `FolderManager` persist app organization
+- **`settings/`, `theme/`** — persisted, `StateFlow`-backed settings and theme state
+- **`terminal/`** — `TerminalAdapter` renders entries in either UI mode; `TerminalEntry` is the data model for a single line/card/panel
+
+See [`CLAUDE.md`](CLAUDE.md) for a full architectural deep-dive, including how commands are dispatched, how the folder system and UI-mode rendering work, and persistence details.
+
+### Adding a new command
+
+1. Create `commands/impl/MyCommand.kt` implementing the `Command` interface (a `description` string + an `execute` function)
+2. Register it in `CommandRegistry`
+3. `-h` support is automatic — no extra work needed
+
+### Contributing
+
+1. Fork the repo and create a branch for your change
+2. Keep commands small and focused — one `Command` implementation per file
+3. Run `./gradlew test lint` before opening a PR
+4. Open a pull request describing what changed and why
+
+Bug reports and feature ideas are welcome via [GitHub Issues](https://github.com/adelapazborrero/term_launcher/issues).
 
 ---
 
 ## License
 
-MIT
+[MIT](LICENSE)

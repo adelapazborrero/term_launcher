@@ -70,9 +70,9 @@ The screen is split into two parts:
 
 Controlled by `settings set ui_mode terminal|modern`. The Activity collects `currentSettings` StateFlow and calls `applySettings()` + `applyInputBarStyle()` live.
 
-**Terminal mode** (default): plain monospace text, `$` prefix on commands, no decorations.
+**Terminal mode**: plain monospace text, `$` prefix on commands, no decorations.
 
-**Modern mode**:
+**Modern mode** (default):
 - Input bar gets a rounded rectangle border (10dp corners) in the theme's prompt color
 - INPUT entries render with a `◎` indicator (green = `theme.foreground`, red = `theme.error`), command text, and `HH:mm` timestamp right-aligned
 - A faint divider line is appended after each command block
@@ -180,7 +180,7 @@ Every command supports `-h` for inline help (handled globally in `CommandProcess
 | Key | Values | Default |
 |---|---|---|
 | `theme` | matrix, blood, ice, amber, ghost, ubuntu, dracula, frappe | matrix |
-| `ui_mode` | terminal, modern | terminal |
+| `ui_mode` | terminal, modern | modern |
 | `font_size` | 8–32 (sp) | 14 |
 | `prompt` | any string | `root@hackr:~$ ` |
 | `bg_opacity` | 0–100 (%) | 100 |
