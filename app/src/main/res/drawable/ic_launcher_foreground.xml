@@ -4,12 +4,24 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- '>' prompt symbol -->
+    <!-- '>' prompt chevron -->
     <path
-        android:fillColor="#00FF41"
-        android:pathData="M18,54 L46,28 L46,40 L34,54 L46,68 L46,80 Z" />
-    <!-- '_' cursor underline -->
+        android:fillColor="#00000000"
+        android:strokeColor="#00FF41"
+        android:strokeWidth="7"
+        android:strokeLineCap="round"
+        android:pathData="M40,36 L60,52" />
     <path
-        android:fillColor="#00FF41"
-        android:pathData="M52,72 L90,72 L90,80 L52,80 Z" />
+        android:fillColor="#00000000"
+        android:strokeColor="#00FF41"
+        android:strokeWidth="7"
+        android:strokeLineCap="round"
+        android:pathData="M60,52 L40,68" />
+    <!-- '_' cursor, sitting at the baseline to the right of the chevron -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#00FF41"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M64,64 L80,64" />
 </vector>
