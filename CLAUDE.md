@@ -52,6 +52,25 @@ USB install is blocked by MIUI (requires SIM card to enable). Use WiFi ADB + man
 
 Device IP: `192.168.2.81`. After connecting, push the APK and install from the phone's file manager.
 
+## Commit Convention & Releases
+
+All commits on `main` must follow [Conventional Commits](https://www.conventionalcommits.org/): `<type>(optional-scope): <description>`, e.g. `feat: add bg_opacity setting` or `fix(alias): handle recursive expansion depth`.
+
+Common types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `style`, `perf`, `build`, `ci`.
+
+`.github/workflows/release.yml` inspects the commit messages pushed to `main` and automatically versions/tags/releases based on the **highest-precedence type found since the last tag**:
+
+| Commit pattern | Version bump |
+|---|---|
+| `<type>!: ...` (e.g. `feat!:`) or a `BREAKING CHANGE:` footer | major |
+| `feat: ...` | minor |
+| `fix: ...` | patch |
+| anything else (`chore`, `docs`, `refactor`, `style`, `test`, ...) | no release |
+
+When a release-worthy commit lands, the pipeline: bumps `versionName`/`versionCode` in `app/build.gradle.kts` and commits that back to `main` (with `[skip ci]` to avoid retriggering itself) → creates and pushes a `vX.Y.Z` tag on that commit → builds `assembleRelease` (minified, debug-signed so it installs without extra setup) → renames the APK to `termlauncher-release-vX_Y_Z.apk` (dots replaced with underscores) → publishes a GitHub Release with that APK attached and an auto-generated changelog from the commit subjects.
+
+Pushes with only non-release-worthy commit types run the workflow but exit early without tagging or releasing anything.
+
 ## Architecture
 
 ### Entry Point & Home Screen Registration

@@ -1,0 +1,137 @@
+name: Release
+
+# Inspects the commit messages pushed to main for Conventional Commits
+# prefixes and, if any are release-worthy, bumps the version, tags it,
+# builds the release APK, and publishes a GitHub Release with it.
+#
+# Bump rules (highest precedence wins):
+#   <type>!: ...  or a "BREAKING CHANGE:" footer  -> major
+#   feat: ...                                     -> minor
+#   fix: ...                                      -> patch
+#   anything else (chore, docs, refactor, ...)    -> no release
+#
+# See CLAUDE.md for the commit message convention this depends on.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version bump
+        id: bump
+        run: |
+          set -e
+          LATEST_TAG=$(git tag -l 'v*' --sort=-v:refname | head -n1)
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No existing tag found — nothing to bump from. Skipping." >&2
+            echo "bump=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          RANGE="$LATEST_TAG..HEAD"
+          SUBJECTS=$(git log "$RANGE" --format=%s)
+          BODY=$(git log "$RANGE" --format=%B)
+
+          BUMP=""
+          if echo "$SUBJECTS" | grep -qE '^[a-zA-Z]+(\([^)]+\))?!:' || echo "$BODY" | grep -q 'BREAKING CHANGE:'; then
+            BUMP="major"
+          elif echo "$SUBJECTS" | grep -qE '^feat(\([^)]+\))?:'; then
+            BUMP="minor"
+          elif echo "$SUBJECTS" | grep -qE '^fix(\([^)]+\))?:'; then
+            BUMP="patch"
+          fi
+
+          if [ -z "$BUMP" ]; then
+            echo "No feat/fix/breaking commits since $LATEST_TAG — skipping release."
+          fi
+
+          echo "latest_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+          echo "bump=$BUMP" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "changelog<<EOF"
+            git log "$RANGE" --format='- %s'
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Compute new version
+        id: version
+        if: steps.bump.outputs.bump != ''
+        run: |
+          set -e
+          VERSION="${{ steps.bump.outputs.latest_tag }}"
+          VERSION="${VERSION#v}"
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          PATCH=$(echo "$VERSION" | cut -d. -f3)
+
+          case "${{ steps.bump.outputs.bump }}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+          esac
+
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "new_tag=v$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set up JDK 17
+        if: steps.bump.outputs.bump != ''
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Bump versionName/versionCode and commit
+        if: steps.bump.outputs.bump != ''
+        run: |
+          set -e
+          sed -i "s/versionName = \"[^\"]*\"/versionName = \"${{ steps.version.outputs.new_version }}\"/" app/build.gradle.kts
+          sed -i "s/versionCode = [0-9]*/versionCode = ${{ github.run_number }}/" app/build.gradle.kts
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add app/build.gradle.kts
+          git commit -m "chore(release): ${{ steps.version.outputs.new_tag }} [skip ci]"
+          git push origin HEAD:main
+
+          git tag "${{ steps.version.outputs.new_tag }}"
+          git push origin "${{ steps.version.outputs.new_tag }}"
+
+      - name: Build release APK
+        if: steps.bump.outputs.bump != ''
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleRelease
+
+      - name: Rename APK
+        if: steps.bump.outputs.bump != ''
+        id: apk
+        run: |
+          set -e
+          VERSION_UNDERSCORE=$(echo "${{ steps.version.outputs.new_version }}" | tr '.' '_')
+          APK_NAME="termlauncher-release-v${VERSION_UNDERSCORE}.apk"
+          mv app/build/outputs/apk/release/app-release.apk "$APK_NAME"
+          echo "apk_name=$APK_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        if: steps.bump.outputs.bump != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.version.outputs.new_tag }}" \
+            "${{ steps.apk.outputs.apk_name }}" \
+            --title "${{ steps.version.outputs.new_tag }}" \
+            --notes "${{ steps.bump.outputs.changelog }}"

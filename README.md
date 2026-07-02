@@ -34,12 +34,14 @@ Everything you set up — theme, folders, favorites, aliases, font size — is s
 
 TermLauncher is a sideload build — not yet on the Play Store.
 
-1. Download the latest `app-debug.apk` from the [Releases](https://github.com/adelapazborrero/term_launcher/releases) page
+1. Download the latest `termlauncher-release-vX_Y_Z.apk` from the [Releases](https://github.com/adelapazborrero/term_launcher/releases) page (e.g. `termlauncher-release-v1_2_0.apk`)
 2. On your Android device, enable **Install unknown apps** for your file manager
 3. Open the APK and tap **Install**
 4. Press the **Home button** — Android will ask which launcher to use; choose **TermLauncher**
 
 > Requires Android 8.0 (API 26) or later.
+
+Releases are cut automatically from `main` based on [Conventional Commits](https://www.conventionalcommits.org/) — see [`CLAUDE.md`](CLAUDE.md#commit-convention--releases) for how versioning works.
 
 ---
 

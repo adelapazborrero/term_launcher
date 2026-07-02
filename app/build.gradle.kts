@@ -23,6 +23,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Signed with the debug key for now so sideloaded releases install
+            // without extra setup. Swap for a real release keystore later.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
