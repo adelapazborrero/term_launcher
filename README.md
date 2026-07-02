@@ -5,6 +5,11 @@ Your Android home screen, reimagined as a command line.
 No icon grid. No widgets. No app drawer to swipe through. You unlock your phone, a prompt is waiting for you, and you type what you want — `open spotify`, `ls music`, `fav add camera`. That's the whole interface.
 
 <p align="center">
+  <img src="screenshots/demo.gif" width="260" alt="Demo: searching for Maps, favoriting it, launching from favorites, creating an alias, and running info">
+</p>
+<p align="center"><i>Search for an app, star it as a favorite, launch it straight from the favorites list, then set up a one-word alias for next time.</i></p>
+
+<p align="center">
   <img src="screenshots/modern-home.png" width="200" alt="Modern mode home screen">
   <img src="screenshots/modern-apps.png" width="200" alt="Modern mode aliases, folders, and favorites">
   <img src="screenshots/modern-settings.png" width="200" alt="Modern mode settings panel">
