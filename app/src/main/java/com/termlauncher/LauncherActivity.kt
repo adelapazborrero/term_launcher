@@ -160,8 +160,8 @@ class LauncherActivity : AppCompatActivity() {
                 setColor(colorWithOpacity(theme.background, viewModel.currentSettings.value.bgOpacity))
             }
             binding.inputBar.background = stroke
-            val hPad = (14 * dp).toInt()
-            val vPad = (8 * dp).toInt()
+            val hPad = (16 * dp).toInt()
+            val vPad = (12 * dp).toInt()
             binding.inputBar.setPadding(hPad, vPad, hPad, vPad)
         } else {
             binding.inputBar.background = null
