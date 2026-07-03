@@ -15,6 +15,21 @@ android {
         versionName = "1.0.2"
     }
 
+    signingConfigs {
+        // Stable release key, fed from CI secrets via env vars so every release
+        // is signed with the SAME key and installs as an in-place update (no
+        // uninstall, no data loss). Populated only when RELEASE_KEYSTORE_FILE is
+        // set; local builds fall back to the debug key below.
+        create("release") {
+            System.getenv("RELEASE_KEYSTORE_FILE")?.let { path ->
+                storeFile = file(path)
+                storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("RELEASE_KEY_ALIAS")
+                keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -23,9 +38,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Signed with the debug key for now so sideloaded releases install
-            // without extra setup. Swap for a real release keystore later.
-            signingConfig = signingConfigs.getByName("debug")
+            // Use the stable release keystore when CI provides it; otherwise the
+            // debug key so local `assembleRelease` still works without setup.
+            signingConfig = if (System.getenv("RELEASE_KEYSTORE_FILE") != null) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 
