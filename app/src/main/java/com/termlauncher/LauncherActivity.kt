@@ -11,6 +11,9 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,10 +39,33 @@ class LauncherActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this) { /* launchers don't exit on back */ }
 
+        setupInsets()
         setupTerminal()
         setupInput()
         observeViewModel()
         showKeyboard()
+    }
+
+    /**
+     * On Android 15 (API 35) edge-to-edge is enforced, so the window draws behind
+     * the system bars and IME and `adjustResize` no longer shrinks the layout. We
+     * opt out of decor-fitting and instead pad the root by the system bar + keyboard
+     * insets ourselves, keeping the input bar above the keyboard on every version.
+     */
+    private fun setupInsets() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val basePad = (8 * resources.displayMetrics.density).toInt()
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            view.setPadding(
+                basePad + bars.left,
+                basePad + bars.top,
+                basePad + bars.right,
+                basePad + maxOf(bars.bottom, ime.bottom)
+            )
+            insets
+        }
     }
 
     private fun setupTerminal() {
