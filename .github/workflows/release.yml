@@ -8,7 +8,7 @@ name: Release
 #   no tag exists yet                             -> v1.0.0 (initial release)
 #   <type>!: ...  or a "BREAKING CHANGE:" footer   -> major
 #   feat: ...                                      -> minor
-#   fix: ...                                       -> patch
+#   fix: ... or style: ...                         -> patch
 #   anything else (chore, docs, refactor, ...)     -> no release
 #
 # See CLAUDE.md for the commit message convention this depends on.
@@ -55,12 +55,12 @@ jobs:
             BUMP="major"
           elif echo "$SUBJECTS" | grep -qE '^feat(\([^)]+\))?:'; then
             BUMP="minor"
-          elif echo "$SUBJECTS" | grep -qE '^fix(\([^)]+\))?:'; then
+          elif echo "$SUBJECTS" | grep -qE '^(fix|style)(\([^)]+\))?:'; then
             BUMP="patch"
           fi
 
           if [ -z "$BUMP" ]; then
-            echo "No feat/fix/breaking commits since $LATEST_TAG — skipping release."
+            echo "No feat/fix/style/breaking commits since $LATEST_TAG — skipping release."
           fi
 
           echo "latest_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"

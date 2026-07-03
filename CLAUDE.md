@@ -64,8 +64,8 @@ Common types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `style`, `perf
 |---|---|
 | `<type>!: ...` (e.g. `feat!:`) or a `BREAKING CHANGE:` footer | major |
 | `feat: ...` | minor |
-| `fix: ...` | patch |
-| anything else (`chore`, `docs`, `refactor`, `style`, `test`, ...) | no release |
+| `fix: ...` or `style: ...` | patch |
+| anything else (`chore`, `docs`, `refactor`, `test`, ...) | no release |
 
 When a release-worthy commit lands, the pipeline: bumps `versionName`/`versionCode` in `app/build.gradle.kts` and commits that back to `main` (with `[skip ci]` to avoid retriggering itself) → creates and pushes a `vX.Y.Z` tag on that commit → builds `assembleRelease` (minified, debug-signed so it installs without extra setup) → renames the APK to `termlauncher-release-vX_Y_Z.apk` (dots replaced with underscores) → publishes a GitHub Release with that APK attached and an auto-generated changelog from the commit subjects.
 
