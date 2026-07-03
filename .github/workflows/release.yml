@@ -150,8 +150,13 @@ jobs:
         if: steps.bump.outputs.bump != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Passed via env (not inline ${{ }}) so quotes/special chars in the
+          # changelog can't break the shell command.
+          NEW_TAG: ${{ steps.version.outputs.new_tag }}
+          APK_NAME: ${{ steps.apk.outputs.apk_name }}
+          CHANGELOG: ${{ steps.bump.outputs.changelog }}
         run: |
-          gh release create "${{ steps.version.outputs.new_tag }}" \
-            "${{ steps.apk.outputs.apk_name }}" \
-            --title "${{ steps.version.outputs.new_tag }}" \
-            --notes "${{ steps.bump.outputs.changelog }}"
+          gh release create "$NEW_TAG" \
+            "$APK_NAME" \
+            --title "$NEW_TAG" \
+            --notes "$CHANGELOG"
