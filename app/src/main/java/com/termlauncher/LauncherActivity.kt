@@ -83,7 +83,8 @@ class LauncherActivity : AppCompatActivity() {
             },
             onSaveAliases = { id, original, updated -> viewModel.applyAliases(id, original, updated) },
             onClosePanel = { id -> viewModel.closePanel(id) },
-            onSelectTheme = { name -> viewModel.selectTheme(name) }
+            onSelectTheme = { name -> viewModel.selectTheme(name) },
+            onOpenHomeSettings = { openHomeSettings() }
         )
         binding.terminalRecycler.apply {
             layoutManager = LinearLayoutManager(this@LauncherActivity).also {
@@ -104,6 +105,25 @@ class LauncherActivity : AppCompatActivity() {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         startActivity(intent)
+    }
+
+    /**
+     * Opens the system "Default Home app" settings so a user can switch away
+     * from TermLauncher. Falls back to the top-level Settings screen on devices
+     * that don't expose the dedicated home-settings action.
+     */
+    private fun openHomeSettings() {
+        val intents = listOf(
+            Intent(AndroidSettings.ACTION_HOME_SETTINGS),
+            Intent(AndroidSettings.ACTION_SETTINGS)
+        )
+        for (intent in intents) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            try {
+                startActivity(intent)
+                return
+            } catch (_: Exception) { /* try the next fallback */ }
+        }
     }
 
     private fun setupInput() {

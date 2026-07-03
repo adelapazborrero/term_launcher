@@ -30,7 +30,8 @@ class TerminalAdapter(
     private val onSaveSettings: (id: Long, theme: String, uiMode: UiMode, fontSize: Float, prompt: String, bgOpacity: Int) -> Unit = { _, _, _, _, _, _ -> },
     private val onSaveAliases: (id: Long, original: List<Pair<String, String>>, updated: List<Pair<String, String>>) -> Unit = { _, _, _ -> },
     private val onClosePanel: (id: Long) -> Unit = {},
-    private val onSelectTheme: (String) -> Unit = {}
+    private val onSelectTheme: (String) -> Unit = {},
+    private val onOpenHomeSettings: () -> Unit = {}
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     class TextViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
@@ -53,6 +54,7 @@ class TerminalAdapter(
         val promptInput: EditText = root.findViewById(R.id.prompt_input)
         val opacitySeek: SeekBar = root.findViewById(R.id.opacity_seek)
         val opacityValue: TextView = root.findViewById(R.id.opacity_value)
+        val defaultLauncherBtn: TextView = root.findViewById(R.id.default_launcher_btn)
         val cancelBtn: TextView = root.findViewById(R.id.cancel_btn)
         val saveBtn: TextView = root.findViewById(R.id.save_btn)
         var draftTheme: String = ""
@@ -270,6 +272,19 @@ class TerminalAdapter(
             holder.draftFontSize = (holder.draftFontSize + 1f).coerceAtMost(32f)
             render()
         }
+
+        holder.defaultLauncherBtn.textSize = fontSize * 0.9f
+        holder.defaultLauncherBtn.setTextColor(theme.prompt)
+        holder.defaultLauncherBtn.setPadding(
+            (12 * dp).toInt(), (7 * dp).toInt(), (12 * dp).toInt(), (7 * dp).toInt()
+        )
+        holder.defaultLauncherBtn.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 6f * dp
+            setStroke((1f * dp).toInt(), theme.prompt)
+            setColor(theme.background)
+        }
+        holder.defaultLauncherBtn.setOnClickListener { onOpenHomeSettings() }
 
         holder.cancelBtn.setTextColor(theme.hint)
         holder.cancelBtn.setOnClickListener { onClosePanel(entry.id) }

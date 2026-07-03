@@ -179,6 +179,18 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/default_launcher_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="monospace"
+        android:textSize="12sp"
+        android:text="⌂ change default launcher"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="12dp"
+        android:clickable="true"
+        android:focusable="true" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
